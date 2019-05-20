@@ -32,7 +32,7 @@ int main() {
     rep(i, h) {
         rep(j, w) {
             char ch;
-            cin >> ch;
+            cin x>> ch;
             if (ch == 'S') {
                 yx[i][j] = -1;
                 starty = i;
