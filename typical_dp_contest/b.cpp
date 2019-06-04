@@ -21,43 +21,24 @@ typedef long long int LL;
 typedef unsigned long long int ULL;
 
 const LL INF = 1LL << 60;
-
-template<class T> inline bool chmin(T &a, T b) {
-    if (a > b) {
-        a = b;
-        return true;
-    } else {
-        return false;
-    }
-}
-template<class T> inline bool chmax(T &a, T b) {
-    if (a < b) {
-        a = b;
-        return true;
-    } else {
-        return false;
-    }
-}
+vector<LL> h(100000 + 1);
+vector<LL> dp(100000 + 1);
 
 int main() {
-    int n;
-    cin >> n;
-    vector<LL> h(n);
+    int n, k;
+    cin >> n >> k;
     rep(i, n) {
         cin >> h[i];
     }
-    vector<LL> dp(n);
-    rep(i, n) {
-        dp[i] = INF;
-    }
-
     dp[0] = 0;
     for (int i = 1; i < n; i++) {
-        chmin(dp[i], dp[i - 1] + abs(h[i] - h[i - 1]));
-        if (i > 1) {
-            chmin(dp[i], dp[i - 2] + abs(h[i] - h[i - 2]));
+        LL min_step = INF;
+        rep(j, min(k, i)) {
+            min_step = min(min_step, dp[i - j - 1] + abs(h[i] - h[i - j - 1]));
         }
+        dp[i] = min_step;
     }
     cout << dp[n - 1] << endl;
+
     return 0;
 }
