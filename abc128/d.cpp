@@ -19,11 +19,7 @@
 using namespace std;
 typedef long long int LL;
 typedef unsigned long long int ULL;
-struct ans{
-    int num_throw;
-    int num_pop;
-    LL value;
-};
+
 int main() {
     int n, k;
     cin >> n >> k;
@@ -33,25 +29,34 @@ int main() {
         cin >> value;
         values.push_back(value);
     }
-    vector<LL> acc_left(n + 1), acc_right(n + 1);
-    acc_left[0] = 0;
-    for (int i = 1; i < n + 1; i++) {
-        acc_left[i] = acc_left[i - 1] + values[i];
-    }
-    acc_right[n] = 0;
-    for (int i = n - 1; i >= 0; i--) {
-        acc_right[i] = acc_right[i + 1] + values[i];
-    }
+    LL n_iter = min(n, k);
+    LL ans = 0;
+    rep(left, n_iter + 1) {
+        rep(right, n_iter + 1) {
+            if (left + right > n_iter) continue;
 
-    rep(i, n) {
-        rep(j, n) {
-            LL res = acc_left[i] + acc_right[j];
-            LL num_throw = k - i - j;
-            if (num_throw < 0) continue;
+            vector<LL> having;
+            rep(i, left) {
+                having.push_back(values[i]);
+            }
+            rep(i, right) {
+                having.push_back(values[n - i - 1]);
+            }
+            sort(having.begin(), having.end());
 
+            LL num_waste = k - left - right;
+            LL res = 0;
+            rep(i, having.size()) {
+                if (num_waste > 0 and having[i] < 0) {
+                    num_waste--;
+                    continue;
+                }
 
+                res += having[i];
+            }
+            ans = max(ans, res);
         }
     }
-    cout << res << endl;
+    cout << ans << endl;
     return 0;
 }
