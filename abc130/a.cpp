@@ -21,24 +21,12 @@ typedef long long int LL;
 typedef unsigned long long int ULL;
 
 int main() {
-    string str;
-    cin >> str;
-    ULL x = 0;
-    int base = 1;
-    for (int i = str.size() - 1; i >= 0; i--) {
-        int n = 0;
-        if (str[i] == '0') {
-            n = 0;
-        } else {
-            n = 1;
-        }
-
-        x += n * base;
-        base = base * 2;
+    int x, a;
+    cin >> x >> a;
+    if (x < a) {
+        cout << 0 << endl;
+    } else {
+        cout << 10 << endl;
     }
-
-    for (ULL i = 0; i <= x; i++) {
-
-    }
-    cout  << x  << endl;
+    return 0;
 }
