@@ -18,21 +18,8 @@ using namespace std;
 typedef long long int LL;
 typedef unsigned long long int ULL;
 
-LL oddsolve(LL a) {
-    return (a + 1) / 2 % 2;
-}
 
-LL solve(LL a) {
-    if (a % 2 == 1) {
-        return oddsolve(a);
-    } else {
-        return oddsolve(a + 1) ^ (a + 1);
-    }
-}
 int main() {
-    LL a, b;
-    cin >> a >> b;
-    cout << (solve(b) ^ solve(a - 1)) << endl;
-
-    return 0;
+    int N;
+    cin >> N;
 }

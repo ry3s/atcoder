@@ -27,32 +27,61 @@ int main() {
     rep(i, h) {
         cin >> s[i];
     }
+
+    vector<vector<LL>> left(h, vector<LL>(w, 0));
+    vector<vector<LL>> right(h, vector<LL>(w, 0));
+    vector<vector<LL>> up(h, vector<LL>(w, 0));
+    vector<vector<LL>> down(h, vector<LL>(w, 0));
+
+
+    rep(y, h) {
+        int acc = 0;
+        rep(x, w) {
+            if (s[y][x] == '#') {
+                acc = 0;
+                continue;
+            }
+            acc++;
+            left[y][x] = acc;
+        }
+    }
+    rep(y, h) {
+        int acc = 0;
+        for (int x = w - 1; x >= 0; x--) {
+            if (s[y][x] == '#') {
+                acc = 0;
+                continue;
+            }
+            acc++;
+            right[y][x] = acc;
+        }
+    }
+    rep(x, w) {
+        int acc = 0;
+        rep(y, h) {
+            if (s[y][x] == '#') {
+                acc = 0;
+                continue;
+            }
+            acc++;
+            up[y][x] = acc;
+        }
+    }
+    rep(x, w) {
+        int acc = 0;
+        for (int y = h - 1; y >= 0; y--) {
+            if (s[y][x] == '#') {
+                acc = 0;
+                continue;
+            }
+            acc++;
+            down[y][x] = acc;
+        }
+    }
     LL ans = 0;
     rep(y, h) {
         rep(x, w) {
-            if (s[y][x] == '#') continue;
-            LL res = 1;
-            for (int ny = y + 1; ny < h; ny++) {
-                if (s[ny][x] == '#') break;
-                res++;
-            }
-
-            for (int ny = y - 1; ny >= 0; ny--) {
-                if (s[ny][x] == '#') break;
-                res++;
-            }
-
-            for (int nx = x + 1; nx < w; nx++) {
-                if (s[y][nx] == '#') break;
-                res++;
-            }
-
-            for (int nx = x - 1; nx >= 0; nx--) {
-                if (s[y][nx] == '#') break;
-                res++;
-            }
-
-            ans = max(ans, res);
+            ans = max(ans, left[y][x] + right[y][x] + up[y][x] + down[y][x] - 3);
         }
     }
     cout << ans << endl;
