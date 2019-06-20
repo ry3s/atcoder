@@ -18,9 +18,32 @@ using namespace std;
 typedef long long int LL;
 typedef unsigned long long int ULL;
 
+void solve(int n) {
+    vector<LL> a(n);
+    rep(i, n) {
+        cin >> a[i];
+    }
+    LL sum = 0;
+    rep(i, n) {
+        sum += a[i];
+    }
 
+    LL ans = 0;
+    rep(i, n) {
+        if (a[i] * n <= sum) {
+            ans++;
+        }
+    }
+    cout << ans << endl;
+}
 int main() {
-    int N;
-    vector<pair<int, int>> vp;
-    cin >> N;
+    while (true) {
+        int n;
+        cin >> n;
+        if (n == 0) break;
+
+        solve(n);
+    }
+
+    return 0;
 }

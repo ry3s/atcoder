@@ -18,9 +18,25 @@ using namespace std;
 typedef long long int LL;
 typedef unsigned long long int ULL;
 
-
 int main() {
-    int N;
-    vector<pair<int, int>> vp;
-    cin >> N;
+
+    while (true) {
+        LL b;
+        cin >> b;
+        if (b == 0) break;
+
+        LL sum = 0;
+        LL left = 1;
+        LL right = 1;
+        while (sum != b) {
+            if (sum > b) {
+                sum -= left++;
+            }
+            if (sum < b) {
+                sum += right++;
+            }
+        }
+        cout << left << " "  << right - left << endl;
+    }
+    return 0;
 }
