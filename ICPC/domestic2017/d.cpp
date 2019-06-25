@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <array>
 #include <algorithm>
 #include <queue>
 #include <deque>
@@ -18,88 +19,105 @@
 using namespace std;
 using LL = long long int;
 using ULL = unsigned long long int;
-vector<string> b(500);
-vector<bool> e(514);
+
 // (i : recipe, bit : rest of ingredients)
-vector<vector<int>> dp(2, vector<int>(1<<24));
-ULL string_to_binary(string s) {
-    ULL ret = 0;
-    ULL digit = 1;
+int dp[2][1 << 24];
+
+int string_to_binary(string s) {
+    int ret = 0;
+    int digit = 1;
     for (int i = s.size() - 1; i >= 0; i--) {
         ret += (s[i] - '0') * digit;
         digit *= 2;
     }
     return ret;
 }
+int count_bits(int bits){
+    int num;
 
+    num = (bits >> 1) & 03333333333;
+    num = bits - num - ((num >> 1) & 03333333333);
+    num = ((num + (num >> 3)) & 0707070707) % 077;
+
+    return num;
+}
 void exhaustive_search(int n, int m) {
     // input
+    vector<string> b(n);
     rep(i, n) {
         cin >> b[i];
     }
-    // 全探索
-    int ans = 0;;
-    for (int bit = 1; bit < (1 << n); bit++) {
-        int cnt = 0;
-        rep(i, n) {
-            if (bit & (1 << i)) {
-                cnt++;
-                rep(k, m) {
-                    if (b[i][k] == '1')
-                        e[k] = not e[k];
-                }
+    vector<bitset<512>> vb(n);
+    rep(i, n) {
+        rep(j, m) {
+            if (b[i][j] == '1') {
+                vb[i][j] = 1;
             }
         }
-        bool ok = false;
-        rep(i, m) {
-            if (e[i]) ok = false;
+    }
+    // exhaustive search
+    int ans = 0;
+    rep(bits, 1 << n) {
+        int k = count_bits(bits);
+        if (ans >= k) continue;
+
+        bitset<512> sum;
+        rep(i, n) {
+            if (bits & (1 << i)) {
+                sum ^= vb[i];
+            }
         }
-        if (ok) {
-            ans = max(ans, cnt);
+
+        if (sum.none()) {
+            ans = max(ans, k);
         }
     }
     cout << ans << endl;
 }
 void dynamic_programming(int n, int m) {
     // input
+    vector<string> b(n);
     rep(i, n) {
         cin >> b[i];
     }
-    vector<ULL> v(n);
+    vector<int> v(n);
     rep(i, n) {
         v[i] = string_to_binary(b[i]);
     }
-    fill(dp.begin(), dp.end(), -1);
-
+    rep(i, 2) rep(j, 1 << 24) {
+        dp[i][j] = -1;
+    }
 
     dp[0][0] = 0;
-    int k = 1;
-    for (int i = 0; i < n; i++) {
+    int current = 0;
+    int next = 1;
+    rep(i, n) {
         rep(j, 1 << m) {
-            dp[k][j] = dp[not k][j];
+            dp[next][j] = dp[current][j];
         }
-        for (int j = 0; j < (1 << m); j++) {
-            int x = j ^ v[i];
-            if (dp[not k][j] >= 0) {
-                dp[k][x] = max(dp[k][x], dp[not k][j] + 1);
+        rep(bit, 1 << m) {
+            if (dp[current][bit] >= 0) {
+                dp[next][bit ^ v[i]] = max(dp[next][bit ^ v[i]], (short)dp[current][bit] + 1);
             }
         }
-        k = not k;
+        swap(current, next);
     }
-    cout << dp[not k][0] << endl;
+    cout << dp[current][0] << endl;
 }
 int main() {
+    cin.tie(0); cin.sync_with_stdio(0);
     while (true) {
         int n, m;
         cin >> n >> m;
         if (n == 0 and m == 0) {
             break;
-        } else if (n < m) {
+        } else if (m > 20) {
             exhaustive_search(n, m);
         } else { // m > n
             dynamic_programming(n, m);
         }
 
     }
+    return 0;
 
 }
