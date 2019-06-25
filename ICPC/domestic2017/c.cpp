@@ -17,21 +17,21 @@
 using namespace std;
 typedef long long int LL;
 typedef unsigned long long int ULL;
-int calc(int top, int buttom, int left, int right, vector<vector<int>> board) {
+int calc(int top, int bottom, int left, int right, vector<vector<int>> board) {
     int out_min = 1e6;
 
-    for (int i = top; i <= buttom; i++) {
+    for (int i = top; i <= bottom; i++) {
         for (int j = left; j <= right; j++) {
-            if (i == top or i == buttom or j == left or j == right) {
+            if (i == top or i == bottom or j == left or j == right) {
                 out_min = min(out_min, board[i][j]);
             }
         }
     }
 
     int ans = 0;
-    for (int y = top; y <= buttom; y++) {
+    for (int y = top; y <= bottom; y++) {
         for (int x = left; x <= right; x++) {
-            if (y == top or y == buttom or x == left or x == right) {
+            if (y == top or y == bottom or x == left or x == right) {
                 continue;
             }
             if (board[y][x] >= out_min) {
@@ -50,10 +50,10 @@ void solve(int d, int w) {
     }
     int ans = 0;
     rep(top, d - 2) {
-        for (int buttom = top + 2; buttom < d; buttom++) {
+        for (int bottom = top + 2; bottom < d; bottom++) {
             rep(left, w - 2) {
                 for (int right = left + 2; right < w; right++) {
-                    ans = max(ans, calc(top, buttom, left, right, board));
+                    ans = max(ans, calc(top, bottom, left, right, board));
                 }
             }
         }

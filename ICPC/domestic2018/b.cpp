@@ -26,33 +26,33 @@ void solve(int n, int m, int t, int p) {
     int left = 0;
     int right = n;
     int top = m;
-    int buttom = 0;
+    int bottom = 0;
     rep(i, t) {
         int d, c;
         cin >> d >> c;
         if (d == 1) { // left
 
             for (int x = 0; x < c; x++) {
-                for (int y = buttom; y < top; y++) {
+                for (int y = bottom; y < top; y++) {
                     board[left + c + x][y] += board[left + c - x -1][y];
                 }
             }
             right = max(right, left + 2 * c);
             left = left + c;
-        } else if (d == 2) { // buttom
+        } else if (d == 2) { // bottom
             for (int y = 0; y < c; y++) {
                 for (int x = left; x < right; x++) {
-                    board[x][buttom + c + y] += board[x][buttom + c - y - 1];
+                    board[x][bottom + c + y] += board[x][bottom + c - y - 1];
                 }
             }
-            top = max(top, buttom + 2 * c);
-            buttom = buttom + c;
+            top = max(top, bottom + 2 * c);
+            bottom = bottom + c;
         }
     }
     rep(i, p) {
         int x, y;
         cin >> x >> y;
-        cout << board[left + x][buttom + y] << endl;
+        cout << board[left + x][bottom + y] << endl;
     }
 }
 int main() {
