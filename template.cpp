@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <utility>
 #include <queue>
 #include <deque>
 #include <stack>
@@ -14,24 +15,207 @@
 #include <set>
 #include <bitset>
 #include <iterator>
+#define loop(i, a, b) for(int i = (int)(a); i < (int)(b); i++)
 #define rep(i, n) for(long long i = 0; i < (long long)(n); i++)
 #define debug(x)  cout << #x << " = " << (x) << endl;
 using namespace std;
-typedef long long int LL;
-typedef unsigned long long int ULL;
+using LL = long long int;
+using ULL = unsigned long long;
 
-// tree DFS
 
-using Graph = vector<vector<int> >;
-Graph graph;
+// optional
+#define EPS (1e - 7)
+#define PI (acos(-1))
 
-void dfs(int v, int parent) {
-    for (auto nv : graph[v]) {
-        if (nv == parent) continue; // 逆流防止
-        dfs(nv, v);
+
+// DFS template
+using myGraph = vector<vector<int>>;
+vector<bool> visited;
+void dfs(const myGraph &graph, int v) {
+    visited[v] = true;
+
+    for (auto next_v : graph[v]) {
+        if (visited[next_v]) continue;
+
+        dfs(graph, next_v);
     }
 }
+
+// 立っているビットを数える
+int count_bits(int bits) {
+    int num = 0;
+    while (bits != 0) {
+        num++;
+        bits &= bits - 1;
+    }
+    return num;
+}
+
+// 構文解析
+#include <cctype>
+using State = string::const_iterator;
+// !!! else break;
+
+
+// 累積和
+vector<int> a(100);
+vector<int> acc(100 + 1, 0);
+void ruiseki_wa() {
+    rep(i, 100) { acc[i + 1] = acc[i] + a[i]; };
+}
+// ２次元累積
+// acc[x + 1][y + 1] = acc[x][y = 1] + acc[x + 1][y] - acc[x][y] + a[x][y]
+
+// しゃくとり法
+void shakutori() {
+    int right = 0;
+    for (int left = 0; left < 100; ++left) {
+        while (right < 100 /* && (right を 1 個進めたときに条件を満たす)*/) {
+            /* 実際に right を 1 進める */
+            // ex: sum += a[right];
+            ++right;
+        }
+
+    /* break した状態で right は条件を満たす最大なので、何かする */
+    // ex: res += (right - left);
+
+    /* left をインクリメントする準備 */
+    // ex: if (right == left) ++right;
+    // ex: else sum -= a[left];
+    }
+}
+
+int gcd(int a, int b) {
+    if (a < b) return gcd(b, a);
+
+    int r;
+    while ((r = a % b)) {
+        a = b;
+        b = r;
+    }
+    return b;
+}
+int lcm(int a, int b) {
+    return a * b / gcd(a, b);
+}
+
+
+void bit_exhaustive_search() {
+    int n = 100;
+
+    for (int bit = 0; bit < (1 << n); bit++) {
+        rep(i, n) {
+            if (bit & (1 << i)) {
+                // 適当な処理
+            }
+        }
+    }
+}
+
+// power(x, n, mod) ::= (x ^ n) % mod
+int power(int base, int n, int mod) {
+    int ret = 1;
+
+    while (n > 0) {
+        if (n & 1) {
+            (ret *= base) %= mod;
+        }
+        (base *= base) %= mod;
+        n >>= 1;
+    }
+    return ret;
+}
+
+bool is_prime(int x) {
+    for (int i = 2; i * i <= x; i++) {
+        if (x % i == 0) return false;
+    }
+    return true;
+}
+
+// 組み合わせ combination
+// combi[n][r] ::= nCr
+// パスカルの三角形
+// nCk = (n - 1)C(k - 1) + (n - 1)C(k)
+vector<vector<long long int> > v(100+1,vector<long long int>(100+1,0));
+void comb(vector<vector<long long>> &v) {
+    rep(i, v.size()) {
+        v[i][0] = 1;
+        v[i][i] = 1;
+    }
+    for (int j = 1; j < (int)v.size(); j++) {
+        for (int k = 1; k < j; k++) {
+            v[j][k] = v[j - 1][k - 1] + v[j - 1][k];
+        }
+    }
+}
+
+
+
+// Graph
+using Weight = int;
+struct Edge {
+    int src, dst;
+    Weight weight;
+    Edge(int src, int dst, Weight weight) :
+        src(src), dst(dst), weight(weight) { }
+};
+bool operator < (const Edge &e, const Edge &f) {
+  return e.weight != f.weight ? e.weight > f.weight : // !!INVERSE!!
+    e.src != f.src ? e.src < f.src : e.dst < f.dst;
+}
+
+using Edges = vector<Edge>;
+using Graph = vector<Edges>;
+
+void dijkstra(const Graph &g, int s, vector<Weight> &dist, vector<int> &prev) {
+    const int INF = 1e9;
+    int n = g.size();
+    dist.assign(n, INF); dist[s] = 0;
+    prev.assign(n, -1);
+    priority_queue<Edge> Q; // "e < f" <=> "e.weight > f.weight"
+    for (Q.push(Edge(-2, s, 0)); not Q.empty(); ) {
+        Edge e = Q.top();
+        Q.pop();
+
+        if (prev[e.dst] != -1) continue;
+
+        prev[e.dst] = e.src;
+        for (auto f = g[e.dst].begin(); f != g[e.dst].end(); f++) {
+            if (dist[f->dst] > e.weight+f->weight) {
+                dist[f->dst] = e.weight+f->weight;
+                Q.push(Edge(f->src, f->dst, e.weight+f->weight));
+            }
+        }
+    }
+}
+vector<int> build_path(const vector<int> &prev, int t) {
+    vector<int> path;
+    for (int u = t; u >= 0; u = prev[u]) {
+        path.push_back(u);
+    }
+    reverse(path.begin(), path.end());
+    return path;
+}
+// bit DP
+// dp[S] = min{i が集合 S に含まれるとき} (dp[S - {i}] + cost(S \ {i}, i));
+
+
+// void dfs(int v, int parent) {
+//     for (auto nv : graph[v]) {
+//         if (nv == parent) continue; // 逆流防止
+//         dfs(nv, v);
+//     }
+// }
 // int main() {
 //     int root = 0;
 //     dfs(root, -1); // root の parent は -1
 // }
+
+
+// reference:
+// Spaghetti Source logo 各種アルゴリズムの C++ による実装
+// http://www.prefield.com/algorithm/index.html
+
+// しゃくとり法 (尺取り法) の解説と、それを用いる問題のまとめ
+// https://qiita.com/drken/items/ecd1a472d3a0e7db8dce
