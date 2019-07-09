@@ -197,6 +197,48 @@ vector<int> build_path(const vector<int> &prev, int t) {
     reverse(path.begin(), path.end());
     return path;
 }
+void longest_common_subsequence() {
+    string s, t;
+    cin >> s;
+    cin >> t;
+    vector<vector<int> > dp(s.size() + 1, vector<int>(t.size() + 1, 0));
+    int n = s.length();
+    int m = t.length();
+
+    rep(i, n) {
+        rep(j, m) {
+            if (s[i] == t[j]) {
+                dp[i + 1][j + 1] = dp[i][j] + 1;
+            } else {
+                dp[i + 1][j + 1] = max(dp[i][j + 1], dp[i + 1][j]);
+            }
+        }
+    }
+    cout << dp[n][m] << endl;;
+
+}
+void edit_distance() {
+    string s1, s2;
+    cin >> s1 >> s2;
+    int n = s1.length();
+    int m = s2.length();
+    vector<vector<int> > dp(n + 1, vector<int>(m + 1, 0));
+    rep(i, n + 1) {
+        dp[i][0] = i;
+    }
+    rep(j, m + 1) {
+        dp[0][j] = j;
+    }
+    rep(i, n) rep(j, m){
+        if (s1[i] == s2[j]) {
+            dp[i + 1][j + 1] = dp[i][j];
+        } else {
+            dp[i + 1][j + 1] = min({dp[i][j + 1] + 1, dp[i + 1][j] + 1, dp[i][j] + 1});
+        }
+    }
+    cout << dp[n][m] << endl;
+
+}
 // bit DP
 // dp[S] = min{i が集合 S に含まれるとき} (dp[S - {i}] + cost(S \ {i}, i));
 
