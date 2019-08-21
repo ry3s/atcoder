@@ -254,7 +254,67 @@ void edit_distance() {
 //     dfs(root, -1); // root の parent は -1
 // }
 
+template<typename T>
+struct BellmanFord {
+    struct Edge {
+        int from, to; LL cost;
+        Edge() {}
+        Edge(int from, int to, LL cost): from(from), to(to), cost(cost) {}
+    };
 
+    int n;
+    vector<vector<int>> graph;
+    vector<int> used, reach;
+    BellmanFord(int n): n(n), graph(n), used(n, 0), reach(n, 0) {}
+
+    vector<Edge> edges;
+    void add_edge(int from, int to, LL cost) {
+        edges.push_back(Edge(from, to, cost));
+        graph[from].push_back(to);
+    }
+
+    void dfs(int v) {
+        if (used[v]) return;
+
+        used[v] = 1;
+        for (int u : graph[v]) {
+            dfs(u);
+        }
+    }
+    LL build(int from, int to, bool &neg_loop) {
+        rep(i, n) {
+            fill(used.begin(), used.end(), 0);
+            dfs(i);
+            reach[i] = used[to];
+        }
+
+        vector<LL> dist(n, 1e18);
+        dist[from] = 0;
+
+        rep(i, n) {
+            bool updated = false;
+
+            for (auto e : edges) {
+                if (not reach[e.from]
+                    or not reach[e.to]
+                    or dist[e.from] == 1e18) continue;
+
+                if (dist[e.to] > dist[e.from] + e.cost) {
+                    dist[e.to] = dist[e.from] + e.cost;
+                    updated = true;
+                }
+            }
+
+            if (not updated) break;
+            if (i == n - 1) {
+                neg_loop = true;
+                return 1e18;
+            }
+        }
+        neg_loop = false;
+        return dist[to];
+    }
+};
 // reference:
 // Spaghetti Source logo 各種アルゴリズムの C++ による実装
 // http://www.prefield.com/algorithm/index.html

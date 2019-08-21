@@ -14,15 +14,24 @@
 #include <set>
 #include <bitset>
 #include <iterator>
+#define loop(i, a, b) for(int i = (int)(a); i < (int)(b); i++)
 #define rep(i, n) for(long long i = 0; i < (long long)(n); i++)
 #define debug(x)  cout << #x << " = " << (x) << endl;
+
 using namespace std;
-typedef long long int LL;
-typedef unsigned long long int ULL;
-const LL MOD = 1e9 + 7;
+using LL = long long int;
+using ULL = unsigned long long;
 
 int main() {
-    int n, k;
-    cin >> n >> k;
-    return 0;
+    int n;
+    cin >> n;
+    vector<int> a(n);
+    rep(i, n) {
+        cin >> a[i];
+    }
+    double ans = 0.;
+    rep(i, n) {
+        ans += 1.0 / a[i];
+    }
+    printf("%.7lf\n", 1 / ans);
 }
