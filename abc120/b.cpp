@@ -21,26 +21,19 @@
 using namespace std;
 using LL = long long int;
 using ULL = unsigned long long;
-const LL MOD = 1e9 + 7;
-const int MAX_C = 2100;
-LL com[MAX_C][MAX_C];
-void calc_com() {
-    memset(com, 0, sizeof(com));
-    com[0][0] = 1;
-    for (int i = 1; i < MAX_C; ++i) {
-        com[i][0] = 1;
-        for (int j = 1; j < MAX_C; ++j) {
-            com[i][j] = (com[i-1][j-1] + com[i-1][j]) % MOD;
-        }
-    }
-}
 
 int main() {
-    int n, k;
-    cin >> n >> k;
-    calc_com();
-    loop(i, 1, k + 1) {
-        cout << (com[k - 1][i - 1] * com[n - k + 1][i]) % MOD << endl;
+    int a, b, k;
+    cin >> a >> b >> k;
+    int cnt = 0;
+    for (int i = min(a, b); i >= 1; i--) {
+        if ((a % i == 0) and (b % i == 0)) {
+            cnt++;
+
+            if (cnt == k) {
+                cout << i << endl;
+                return 0;
+            }
+        }
     }
-    return 0;
 }

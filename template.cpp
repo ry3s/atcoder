@@ -149,7 +149,18 @@ void comb(vector<vector<long long>> &v) {
         }
     }
 }
-
+const int MAX_C = 2100;
+LL com[MAX_C][MAX_C];
+void calc_com() {
+    memset(com, 0, sizeof(com));
+    com[0][0] = 1;
+    for (int i = 1; i < MAX_C; ++i) {
+        com[i][0] = 1;
+        for (int j = 1; j < MAX_C; ++j) {
+            com[i][j] = (com[i-1][j-1] + com[i-1][j]) % MOD;
+        }
+    }
+}
 
 
 // Graph
@@ -313,6 +324,33 @@ struct BellmanFord {
         }
         neg_loop = false;
         return dist[to];
+    }
+};
+
+struct UnionFind {
+    vector<int> par;
+
+    UnionFind(int n) {
+        par.assign(n, -1);
+    }
+
+    int root(int x) {
+        if (par[x] < 0) return x;
+        else return par[x] = root(par[x]);
+    }
+    bool is_same(int x, int y) {
+        return root(x) == root(y);
+    }
+    bool merge(int x, int y) {
+        x = root(x); y = root(y);
+        if (x == y) return false;
+        if (par[x] > par[y]) swap(x, y);
+        par[x] += par[y];
+        par[y] = x;
+        return true;
+    }
+    int size(int x) {
+        return -par[root(x)];
     }
 };
 // reference:
