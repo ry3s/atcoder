@@ -22,27 +22,25 @@ using namespace std;
 using LL = long long;
 using ULL = unsigned long long;
 
-vector<LL> make_divisors(LL n) {
-    vector<LL> res;
-
-    for (LL i = 1LL; i * i <= n; i++) {
-        if (n % i == 0) {
-            res.push_back(i);
-            if (i != n / i) res.push_back(n / i);
-        }
-    }
-
-    return res;
-}
 int main() {
-    int n; LL m;
-    cin >> n >> m;
+    string a, b, c; cin >> a >> b >> c;
+    string x = a + b + c + "+";
 
-    auto divs = make_divisors(m);
+    sort(x.begin(), x.end());
 
-    LL ans = 1;
-    for (auto d : divs) {
-        if (d * n <= m) ans = max(ans, d);
-    }
-    cout << ans << endl;
+    int maxi = 0;
+
+    do {
+        if (x[0] == '+' or x[3] == '+') continue;
+
+        if (x[1] == '+') {
+            int tmp = (x[0] - '0') + (x[2] - '0') * 10 + (x[3] - '0');
+            maxi = max(maxi, tmp);
+        } else {
+            int tmp = (x[0] - '0') * 10 + (x[1] - '0') + (x[3] - '0');
+            maxi = max(maxi, tmp);
+        }
+
+    } while (next_permutation(x.begin(), x.end()));
+    cout << maxi << endl;
 }
