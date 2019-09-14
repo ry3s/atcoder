@@ -25,10 +25,11 @@ using ULL = unsigned long long;
 using Edges = vector<pair<int, LL>>;
 using Graph = vector<Edges>;
 template<typename T> using min_priority_queue = priority_queue<T, vector<T>, greater<T>>;
-template<class T>bool chmin(T &a, const T &b) { if (b<a) { a = b; return 1; } return 0; }
-const LL INF = (1LL << 60);
 
-void dijkstra(const Graph &g, int s, vector<LL> &dist) {
+const LL INF = (1LL << 60);
+vector<LL> dijkstra(const Graph &g, int n, int s) {
+    vector<LL> dist(n, INF);
+
     min_priority_queue<pair<LL, int>> que;
     dist[s] = 0;
     que.push({0, s});
@@ -46,8 +47,9 @@ void dijkstra(const Graph &g, int s, vector<LL> &dist) {
             }
         }
     }
+
+    return dist;
 }
-LL d[100000 + 1];
 int main() {
     int n, m, s, t; cin >> n >> m >> s >> t;
     --s; --t;
@@ -61,19 +63,20 @@ int main() {
         graph_snu[u].push_back(make_pair(v, b));
         graph_snu[v].push_back(make_pair(u, b));
     }
-    vector<LL> dist_yen(n, INF), dist_snu(n, INF);
-    dijkstra(graph_yen, s, dist_yen);
-    dijkstra(graph_snu, t, dist_snu);
 
+    auto dist_yen = dijkstra(graph_yen, n, s);
+    auto dist_snu = dijkstra(graph_snu, n, t);
+
+    vector<LL> d(n, 0);
     rep(i, n) {
         d[i] = dist_yen[i] + dist_snu[i];
     }
     for (int i = n - 2; i >= 0; i--) {
-        chmin(d[i], d[i + 1]);
+        d[i] = min(d[i], d[i + 1]);
     }
 
     LL maxi = 1e15;
     rep(i, n) d[i] = maxi - d[i];
-    rep(i, n) printf("%lld\n", d[i]);
+    rep(i, n) cout << d[i] << endl;
     return 0;
 }
