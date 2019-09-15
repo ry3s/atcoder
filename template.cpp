@@ -266,7 +266,7 @@ void edit_distance() {
 // }
 
 template<typename T>
-struct BellmanFord {
+struct BellmanFord1 {
     struct Edge {
         int from, to; LL cost;
         Edge() {}
@@ -276,7 +276,7 @@ struct BellmanFord {
     int n;
     vector<vector<int>> graph;
     vector<int> used, reach;
-    BellmanFord(int n): n(n), graph(n), used(n, 0), reach(n, 0) {}
+    BellmanFord1(int n): n(n), graph(n), used(n, 0), reach(n, 0) {}
 
     vector<Edge> edges;
     void add_edge(int from, int to, LL cost) {
@@ -326,7 +326,41 @@ struct BellmanFord {
         return dist[to];
     }
 };
+struct BellmanFord {
+    struct Edge {
+        int from, to; LL cost;
+        Edge() {}
+        Edge(int from, int to, LL cost): from(from), to(to), cost(cost) {}
+    };
+    const LL INF = (1LL << 60);
+    int n;
+    vector<vector<int>> graph;
+    vector<int> used, reach;
+    vector<LL> dist;
+    BellmanFord(int n): n(n), graph(n), used(n, 0), reach(n, 0), dist(n, INF) {}
 
+    vector<Edge> edges;
+    void add_edge(int from, int to, LL cost) {
+        edges.push_back(Edge(from, to, cost));
+        graph[from].push_back(to);
+    }
+    void build(int s, bool &neg_loop) {
+        neg_loop = false;
+        dist[s] = 0;
+        rep(i, n) {
+            for (auto e : edges) {
+                if (dist[e.from] != INF and dist[e.from] + e.cost < dist[e.to]) {
+                    dist[e.to] = dist[e.from] + e.cost;
+
+                    if (i == n - 1) {
+                        neg_loop = true;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+};
 struct UnionFind {
     vector<int> par;
 

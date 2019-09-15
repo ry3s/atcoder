@@ -22,26 +22,36 @@ using namespace std;
 using LL = long long int;
 using ULL = unsigned long long;
 
+vector<int> common_prefix(string str) {
+    int n = str.size();
+
+    vector<int> ret(n, 0);
+    ret[0] = n;
+    int i = 1, j = 0;
+    while (i < n) {
+        while (i + j < n and str[j] == str[i + j]) ++j;
+
+        ret[i] = j;
+        if (j == 0) {
+            ++i;
+            continue;
+        }
+        int k = 1;
+        while (i + k < n and k + ret[k] < j) ret[i + k] = ret[k], ++k;
+        i += k; j -= k;
+    }
+    return ret;
+}
 int main() {
     int n; cin >> n;
     string s; cin >> s;
 
     int ans = 0;
-    for (int left = 0; left < n - 1; left++) {
-        int right = left + 1;
-        while (right < n) {
-            int length = 0;
-            while (left + length < right
-                   and right + length < n
-                   and s[left + length] == s[right + length]) {
-                length++;
-            }
-            ans = max(ans, length);
-            while (right < n) {
-                right++;
-                if (s[left] == s[right]) break;
-            }
-        }
+    rep(i, n) {
+        auto prefix = common_prefix(s.substr(i, n - i));
+        rep(j, prefix.size()) prefix[j] = min(prefix[j], (int)j);
+
+        ans = max(ans, *max_element(prefix.begin(), prefix.end()));
     }
     cout << ans << endl;
     return 0;
