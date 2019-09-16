@@ -134,23 +134,9 @@ bool is_prime(int x) {
 }
 
 // 組み合わせ combination
-// combi[n][r] ::= nCr
-// パスカルの三角形
-// nCk = (n - 1)C(k - 1) + (n - 1)C(k)
-vector<vector<long long int> > v(100+1,vector<long long int>(100+1,0));
-void comb(vector<vector<long long>> &v) {
-    rep(i, v.size()) {
-        v[i][0] = 1;
-        v[i][i] = 1;
-    }
-    for (int j = 1; j < (int)v.size(); j++) {
-        for (int k = 1; k < j; k++) {
-            v[j][k] = v[j - 1][k - 1] + v[j - 1][k];
-        }
-    }
-}
 const int MAX_C = 2100;
 LL com[MAX_C][MAX_C];
+const LL MOD = 1e9 + 7;
 void calc_com() {
     memset(com, 0, sizeof(com));
     com[0][0] = 1;
@@ -162,6 +148,27 @@ void calc_com() {
     }
 }
 
+template<typename T>
+struct Combination {
+    vector<T> fact, rfact, inv;
+    const LL MOD = 1e9 + 7;
+    Combination(int size) : fact(size + 1), rfact(size + 1), inv(size + 1) {
+        fact[0] = fact[1] = 1;
+        rfact[0] = rfact[1] = 1;
+        inv[1] = 1;
+        for (int i = 2; i <= size; i++) {
+            fact[i] = fact[i - 1] * i % MOD;
+            inv[i] = MOD - inv[MOD % i] * (MOD / i) % MOD;
+            rfact[i] = rfact[i - 1] * inv[i] % MOD;
+        }
+    }
+    LL com(int n, int k) {
+        if (n < k) return 0;
+        if (n < 0 or k < 0) return 0;
+        return fact[n] * (rfact[k] * rfact[n - k] % MOD) % MOD;
+    }
+
+};
 
 // Graph
 using Weight = int;
