@@ -400,3 +400,36 @@ struct UnionFind {
 
 // しゃくとり法 (尺取り法) の解説と、それを用いる問題のまとめ
 // https://qiita.com/drken/items/ecd1a472d3a0e7db8dce
+vector<LL> dijkstra(const Graph &g, int s) {
+    int n = g.size();
+    vector<LL> dist(n, INF);
+    min_priority_queue<pair<LL, int>> que;
+
+    que.push({0, s});
+    dist[s] = 0;
+    while(not que.empty()) {
+        auto dv = que.top(); que.pop();
+        LL d = dv.first;
+        int v = dv.second;
+
+        if (dist[v] < d) continue;
+        for (auto e : g[v]) {
+            if (dist[v] + e.second < dist[e.first]) {
+                dist[e.first] = dist[v] + e.second;
+                que.push({dist[e.first], e.first});
+            }
+        }
+    }
+    return dist;
+}
+bool warshall_floyd(vector<vector<LL>> &dist) {
+    int n = dist.size();
+    const LL INF = (1LL << 60);
+    rep(k, n) rep(i, n) if (dist[i][k] != INF) {
+        rep(j, n) if (dist[k][j] != INF) {
+            dist[i][j]= min(dist[i][j] , dist[i][k] + dist[k][j]);
+            if (j == k and dist[j][k] < 0) return false;
+        }
+    }
+    return true;
+}
