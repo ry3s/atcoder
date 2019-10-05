@@ -22,7 +22,34 @@ using ULL = unsigned long long;
 
 int main() {
     int n; cin >> n;
-    vector<int> ts(n), vs(n);
-    rep(i, n) cin >> ts[i];
-    rep(i, n) cin >> vs[i];
+    vector<int> t(n), v(n);
+    rep(i, n) cin >> t[i];
+    rep(i, n) cin >> v[i];
+
+    const int max_v = *max_element(v.begin(), v.end());
+    constexpr int zoom = 2;
+
+    vector<double> cur(zoom * max_v + 3, - INFINITY);
+    vector<double> pre(zoom * max_v + 3, - INFINITY);
+
+    cur[0] = 0;
+    rep(i, n) {
+        fill(cur.begin() + (zoom * v[i] + 1), cur.end(), - INFINITY);
+        fill(pre.begin() + (zoom * v[i] + 1), pre.end(), - INFINITY);
+
+        rep(tick, zoom * t[i]) {
+            cur.swap(pre);
+            cur[0] = max(pre[0], pre[1] + 0.5 / zoom);
+
+            loop(a, 1, zoom * v[i] + 1) {
+                cur[a] =
+                    max({ pre[a - 1] - 0.5 / zoom,
+                          pre[a],
+                          pre[a + 1] + 0.5 / zoom })
+                    + a / (double)(zoom * zoom);
+            }
+        }
+    }
+    printf("%.12lf\n", cur[0]);
+    return 0;
 }
