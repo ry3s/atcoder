@@ -20,6 +20,33 @@ using namespace std;
 using LL = long long;
 using ULL = unsigned long long;
 
+using Edges = vector<int>;
+using Graph = vector<Edges>;
+vector<bool> visited;
+bool dfs(int cur, int par, int dist, const Graph &g) {
+    int n = g.size();
+    visited[cur] = true;
+    if (cur == n - 1) return dist == 2;
+
+    bool res = false;
+    for (auto next: g[cur]) if (next != par and not visited[next]){
+            res = res or dfs(next, cur, dist + 1, g);
+    }
+    return res;
+}
 int main() {
-    LL n, m; cin >> n >> m;
+    int n, m; cin >> n >> m;
+    Graph graph(n);
+    rep(i, m) {
+        int a, b; cin >> a >> b;
+        --a, --b;
+        graph[a].push_back(b);
+        graph[b].push_back(a);
+    }
+    visited.assign(false, n);
+    if (dfs(0, -1, 0, graph)) {
+        cout << "POSSIBLE" << endl;
+    } else {
+        cout << "IMPOSSIBLE" << endl;
+    }
 }
