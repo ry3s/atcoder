@@ -19,10 +19,9 @@
 using namespace std;
 using LL = long long;
 using ULL = unsigned long long;
-
 using Edges = vector<pair<int, int>>;
 using Graph = vector<Edges>;
-template<typename T> using min_priority_queue = priority_queue<T, vector<T>, greater<T>>;
+template<class T> using min_priority_queue = priority_queue<T, vector<T>, greater<T>>;
 const LL INF = (1LL << 60);
 vector<LL> dijkstra(const Graph &g, int s) {
     int n = g.size();
@@ -46,19 +45,28 @@ vector<LL> dijkstra(const Graph &g, int s) {
     }
     return dist;
 }
+
 int main() {
-    int n, m; cin >> n >> m;
-    Graph graph(n);
-    rep(i, m) {
+    int n; cin >> n;
+    Graph g(n);
+    rep(i, n - 1) {
         int a, b; cin >> a >> b;
         --a, --b;
-        graph[a].push_back({b, 1});
-        graph[b].push_back({a, 1});
+        g[a].push_back({b, 1});
+        g[b].push_back({a, 1});
     }
-    auto dist = dijkstra(graph, 0);
-    if (dist[n - 1] == 2) {
-        cout << "POSSIBLE" << endl;
+    auto dist1 = dijkstra(g, 0);
+    auto dist2 = dijkstra(g, n - 1);
+
+    int num1 = dist1[n - 1] / 2 + 1;
+    int num2 = dist1[n - 1] / 2;
+    loop(i, 1, n - 1) {
+        if (dist1[i] <= dist2[i]) ++num1;
+        else ++num2;
+    }
+    if (num1 > num2) {
+        cout << "Fennec" << endl;
     } else {
-        cout << "IMPOSSIBLE" << endl;
+        cout << "Snuke" << endl;
     }
 }
