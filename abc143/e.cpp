@@ -21,52 +21,43 @@ using LL = long long;
 using ULL = unsigned long long;
 
 const LL INF = (1LL << 60);
-template<class T> using min_priority_queue = priority_queue<T, vector<T>, greater<T>>;
-using Edge = pair<int, LL>;
-using Edges = vector<Edge>;
-using Graph = vector<Edges>;
-vector<LL> dijkstra(const Graph &g, int s) {
-    int n = g.size();
-    vector<LL> dist(n, INF);
-    min_priority_queue<pair<LL, int>> que;
 
-    que.push({0, s});
-    dist[s] = 0;
-    while(not que.empty()) {
-        auto dv = que.top(); que.pop();
-        LL d = dv.first;
-        int v = dv.second;
-
-        if (dist[v] < d) continue;
-        for (auto e : g[v]) {
-            if (dist[v] + e.second < dist[e.first]) {
-                dist[e.first] = dist[v] + e.second;
-                que.push({dist[e.first], e.first});
-            }
+bool warshall_floyd(vector<vector<LL>> &dist) {
+    int n = dist.size();
+    rep(k, n) rep(i, n) if (dist[i][k] != INF) {
+        rep(j, n) if (dist[k][j] != INF) {
+            dist[i][j]= min(dist[i][j] , dist[i][k] + dist[k][j]);
+            if (j == k and dist[j][k] < 0) return false;
         }
     }
-    return dist;
+    return true;
 }
 
 int main() {
     long long n, m, l; cin >> n >> m >> l;
-    Graph g(n);
+    vector<vector<LL>> dist(n, vector<LL>(n, INF));
     rep(i, m) {
-        LL a, b, c; cin >> a >> b >> c;
+        int a, b; LL c;
+        cin >> a >> b >> c;
         --a, --b;
-        g[a].push_back({b, c});
-        g[b].push_back({a, c});
+        dist[a][b] = dist[b][a] = c;
     }
-    auto dist = dijkstra(g, 0);
+    warshall_floyd(dist);
+    vector<vector<LL>> dist2(n, vector<LL>(n, INF));
+    rep(i, n) rep(j, n) {
+        if (dist[i][j] <= l) dist2[i][j] = dist2[j][i] = 1;
+    }
+    warshall_floyd(dist2);
+
     int q; cin >> q;
     rep(i, q) {
         int s, t; cin >> s >> t;
         --s, --t;
-        LL dist = mat[s][t];
-        if (dist == INF) {
+        LL d = dist2[s][t];
+        if (d == INF) {
             cout << -1 << endl;
         } else {
-            cout << << endl;
+            cout << d - 1 << endl;
         }
     }
 }
