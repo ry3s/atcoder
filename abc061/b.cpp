@@ -22,4 +22,14 @@ using ULL = unsigned long long;
 
 int main() {
     int n, m; cin >> n >> m;
+    vector<int> mp(n, 0);
+    rep(i, m) {
+        int a, b; cin >> a >> b;
+        --a, --b;
+        ++mp[a];
+        ++mp[b];
+    }
+    for (auto &e: mp) {
+        cout << e << endl;
+    }
 }
