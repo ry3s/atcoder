@@ -22,24 +22,18 @@ using ULL = unsigned long long;
 
 int main() {
     int n; cin >> n;
-    vector<int> a(n);
-    rep(i, n) cin >> a[i];
-
-    sort(a.begin(), a.end());
-    int ret = 1e9;
+    set<int> st;
+    int over = 0;
     rep(i, n) {
-        int ans = 0;
-        int prev = a[i];
-        for (int j = i - 1; j >= 0; --j) {
-            ans += abs(a[j] - prev);
-            prev = a[j];
-        }
-        prev = a[i];
-        for (int j = i + 1; j < n; ++j) {
-            ans += abs(a[j] - prev);
-            prev = a[j];
-        }
-        ret = min(ret, ans);
+        int a; cin >> a;
+        if (a >= 3200) ++over;
+        else st.insert(a/400);
     }
-    cout << ret << endl;
+
+    int maxi = (int)st.size() + over;
+    int mini = 0;
+    if (st.size() == 0) mini = 1;
+    else mini = (int) st.size();
+
+    cout << mini << " " << maxi << endl;
 }
