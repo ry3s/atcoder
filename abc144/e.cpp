@@ -19,7 +19,16 @@
 using namespace std;
 using LL = long long;
 using ULL = unsigned long long;
+bool is_possible(int64_t target, const int64_t k, const vector<int> a, const vector<int> f) {
+    const int n = a.size();
+    int64_t cost = 0;
+    rep(i, n) {
+        int64_t need = target / f[i];
+        cost += max(0LL, (LL)a[i] - need);
+    }
+    return cost <= k;
 
+}
 int main() {
     int n; uint64_t k; cin >> n >> k;
     vector<int> a(n);
@@ -27,44 +36,18 @@ int main() {
     vector<int> f(n);
     for (auto &v: f) cin >> v;
 
-    int64_t sum = 0;
-    for (auto &v : a) {
-        sum += v;
-    }
-    int64_t avg = (sum - k + n - 1) / n;
-    debug(avg);
-    if (avg <= 0) {
-        cout << 0 << endl;
-        return 0;
-    }
     sort(a.begin(), a.end(), greater<>());
-    int64_t rest_k = k;
-    for (auto &v: a) {
-        int64_t diff = v - avg;
-        debug(diff);
-        if (diff <= 0) diff = v;
-
-        if (diff <= rest_k) {
-            v = v - diff;
-            rest_k -= diff;
-
-        } else {
-            v = v - rest_k;
-            rest_k = 0;
-            break;
-        }
-
-
-    }
-    sort(a.begin(), a.end(), greater<>());
-    for(auto v: a){
-        debug(v);
-    }
     sort(f.begin(), f.end());
-    int64_t ans = 0;
-    rep(i, n) {
-        ans = max(ans, (int64_t)a[i] * f[i]);
+
+    int64_t left = -1, right = 1e18;
+    while (abs(left - right) > 1) {
+        int64_t mid = (left + right) / 2;
+        if (is_possible(mid, k, a, f)) {
+            right = mid;
+        } else {
+            left = mid;
+        }
     }
-    cout << ans << endl;
+    cout << right << endl;
     return 0;
 }
