@@ -21,24 +21,6 @@ using LL = long long;
 using ULL = unsigned long long;
 
 int main() {
-    string str; cin >> str;
-
-    int n = str.size();
-    int first = 0, last = 0;
-    rep(i, n) {
-        if (str[i] == 'A') {
-            first = i;
-            break;
-        }
-    }
-
-    for (int i = n - 1; i >= 0; i--) {
-        if (str[i] == 'Z') {
-            last = i;
-            break;
-        }
-    }
-    int len = last - first + 1;
-
-    cout << len << endl;
+    int r; cin >> r;
+    cout << r * r << endl;
 }
