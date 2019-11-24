@@ -49,24 +49,20 @@ int main() {
     long long x, y; cin >> x >> y;
     COMinit();
 
-    // if ((x + y) % 3 !=0) {
-    //     cout << 0 << endl;
-    //     return 0;
-    // }
-    long long ans = 0;
-    for (long long i = 1; i <= 1e6; i++) {
-        long long a = i;
-        long long b = x - 2 * a;
-        if (a >= 0 && b >= 0 &&
-            2 * a + b == x
-            && a + 2 * b == y) {
-            if (b < a) {
-                ans = (ans + COM(a + b, b)) % MOD;
-            } else {
-                ans = (ans + COM(a + b, a)) % MOD;
-            }
+    auto dist = x + y;
 
-        }
+    if (dist % 3 != 0) {
+        cout << 0 << endl;
+        return 0;
     }
-    cout << ans << endl;
+
+    auto total = (x + y) / 3;
+    auto n = x - total;
+
+    if (y > x * 2) {
+        cout << 0 << endl;
+    } else {
+        auto ans = COM(total, n);
+        cout << ans << endl;
+    }
 }
