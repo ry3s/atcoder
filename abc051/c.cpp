@@ -19,11 +19,27 @@
 using namespace std;
 using LL = long long;
 using ULL = unsigned long long;
-const int dx[4]{ 0, 1, 0, -1 };
-const int dy[4]{ 1, 0, -1, 0 };
-
 
 int main() {
     int sx, sy, tx, ty; cin >> sx >> sy >> tx >> ty;
 
+    int dx = tx - sx, dy = ty - sy;
+
+    string res = "";
+
+    rep(i, dx) res += "R";
+    rep(i, dy) res += "U";
+    rep(i, dx) res += "L";
+    rep(i, dy) res += "D";
+
+    res += "D";
+    rep(i, dx + 1) res += "R";
+    rep(i, dy + 1) res += "U";
+    res += "L";
+    res += "U";
+    rep(i, dx + 1) res += "L";
+    rep(i, dy + 1) res += "D";
+    res += "R";
+
+    cout << res << endl;
 }
