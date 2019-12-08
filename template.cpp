@@ -147,28 +147,48 @@ void calc_com() {
         }
     }
 }
-
-template<typename T>
+template <typename T>
 struct Combination {
-    vector<T> fact, rfact, inv;
+    vector<T> fac, finv, inv;
     const LL MOD = 1e9 + 7;
-    Combination(int size) : fact(size + 1), rfact(size + 1), inv(size + 1) {
-        fact[0] = fact[1] = 1;
-        rfact[0] = rfact[1] = 1;
+    Combination(int size)
+        : fac(size + 1), finv(size + 1), inv(size + 1) {
+        fac[0] = fac[1] = 1;
+        finv[0] = finv[1] = 1;
         inv[1] = 1;
-        for (int i = 2; i <= size; i++) {
-            fact[i] = fact[i - 1] * i % MOD;
-            inv[i] = MOD - inv[MOD % i] * (MOD / i) % MOD;
-            rfact[i] = rfact[i - 1] * inv[i] % MOD;
+        for (int i = 2; i < size + 1; i++){
+            fac[i] = fac[i - 1] * i % MOD;
+            inv[i] = MOD - inv[MOD%i] * (MOD / i) % MOD;
+            finv[i] = finv[i - 1] * inv[i] % MOD;
         }
     }
-    LL com(int n, int k) {
+    long long com(int n, int k){
         if (n < k) return 0;
-        if (n < 0 or k < 0) return 0;
-        return fact[n] * (rfact[k] * rfact[n - k] % MOD) % MOD;
+        if (n < 0 || k < 0) return 0;
+        return fac[n] * (finv[k] * finv[n - k] % MOD) % MOD;
     }
-
 };
+// template<typename T>
+// struct Combination {
+//     vector<T> fact, rfact, inv;
+//     const LL MOD = 1e9 + 7;
+//     Combination(int size) : fact(size + 1), rfact(size + 1), inv(size + 1) {
+//         fact[0] = fact[1] = 1;
+//         rfact[0] = rfact[1] = 1;
+//         inv[1] = 1;
+//         for (int i = 2; i <= size; i++) {
+//             fact[i] = fact[i - 1] * i % MOD;
+//             inv[i] = MOD - inv[MOD % i] * (MOD / i) % MOD;
+//             rfact[i] = rfact[i - 1] * inv[i] % MOD;
+//         }
+//     }
+//     LL com(int n, int k) {
+//         if (n < k) return 0;
+//         if (n < 0 or k < 0) return 0;
+//         return fact[n] * (rfact[k] * rfact[n - k] % MOD) % MOD;
+//     }
+
+// };
 
 // Graph
 using Weight = int;

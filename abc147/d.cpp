@@ -19,24 +19,22 @@
 using namespace std;
 using LL = long long;
 using ULL = unsigned long long;
+const long long MOD = 1e9 + 7;
+long long dp[3 * 100000 + 1];
 
 int main() {
-    int n; cin >> n;
-    vector<int> a(n);
-    for (int i = 0; i < n; i++) {
+    long long n; cin >> n;
+    vector<long long> a(n);
+    rep(i, n) {
         cin >> a[i];
     }
+    long long ans = 0;
 
-    int sum = 0;
-    for (int e: a) {
-        sum += e;
-    }
-    int avg = round((double)sum / n);
-
-    int ans = 0;
-    for (int e: a) {
-        int diff = abs(e - avg);
-        ans += diff * diff;
+    for (int i = 0; i <  - 1; i++) {
+        for (int i = 1; i < n; i++) {                ans = (ans + (a[i] ^ a[0]));
     }
 
+
+    }
+    cout << ans  % MOD << endl;
 }

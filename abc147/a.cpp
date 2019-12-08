@@ -21,22 +21,10 @@ using LL = long long;
 using ULL = unsigned long long;
 
 int main() {
-    int n; cin >> n;
-    vector<int> a(n);
-    for (int i = 0; i < n; i++) {
-        cin >> a[i];
+    int a, b, c; cin >> a >> b >> c;
+    if (a + b + c >= 22) {
+        cout << "bust" << endl;
+    } else {
+        cout << "win" << endl;
     }
-
-    int sum = 0;
-    for (int e: a) {
-        sum += e;
-    }
-    int avg = round((double)sum / n);
-
-    int ans = 0;
-    for (int e: a) {
-        int diff = abs(e - avg);
-        ans += diff * diff;
-    }
-
 }

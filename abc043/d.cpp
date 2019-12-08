@@ -21,22 +21,26 @@ using LL = long long;
 using ULL = unsigned long long;
 
 int main() {
-    int n; cin >> n;
-    vector<int> a(n);
-    for (int i = 0; i < n; i++) {
-        cin >> a[i];
+    string s; cin >> s;
+
+    int index = 0;
+    while (index + 1 < s.size()){
+        if (s[index] == s[index + 1]) {
+            cout << index + 1 << " " << index + 2 << endl;
+            return 0;
+        }
+        index++;
     }
 
-    int sum = 0;
-    for (int e: a) {
-        sum += e;
+    index = 0;
+    while (index + 2 < s.size()) {
+        if (s[index] == s[index + 2]) {
+            cout << index + 1 << " " << index + 3 << endl;
+            return 0;
+        }
+        index++;
     }
-    int avg = round((double)sum / n);
 
-    int ans = 0;
-    for (int e: a) {
-        int diff = abs(e - avg);
-        ans += diff * diff;
-    }
+    cout << "-1 -1" << endl;
 
 }
