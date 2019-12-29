@@ -17,42 +17,38 @@
 #define debug(x)  cout << #x << " = " << (x) << endl;
 
 using namespace std;
-using LL = long long;
-using ULL = unsigned long long;
+using Graph = vector<vector<int>>;
+Graph g;
+int dist[101010][2];
 
-using Graph = vector<vector<pair<int,int>>;
-template<typename T> using min_priority_queue = priority_queue<T, vector<T>, greater<T>>;
-const LL INF = (1LL << 60);
-vector<LL> dijkstra(const Graph &g, int s) {
-    int n = g.size();
-    vector<LL> dist(n, INF);
+void dfs(int cur, int pre, int d, int id) {
+    dist[cur][id] = d;
 
-    min_priority_queue<pair<LL, int>> que;
-
-    que.push({0, s});
-    dist[s] = 0;
-    while(not que.empty()) {
-        auto dv = que.top(); que.pop();
-        LL d = dv.first;
-        int v = dv.second;
-
-        if (dist[v] < d) continue;
-        for (auto e : g[v]) {
-            if (dist[v] + e.second < dist[e.first]) {
-                dist[e.first] = dist[v] + e.second;
-                que.push({dist[e.first], e.first});
-            }
+    for (const auto next: g[cur]) {
+        if (next != pre) {
+            dfs(next, cur, d + 1, id);
         }
     }
-    return dist;
 }
 int main() {
     int n, u, v; cin >> n >> u >> v;
-    Graph g(n);
+    u -= 1;
+    v -= 1;
+    g.assign(n, vector<int>());
     rep(i, n - 1) {
         int a, b; cin >> a >> b;
         --a, --b;
         g[a].push_back(b);
         g[b].push_back(a);
     }
+    dfs(u, u, 0, 0);
+    dfs(v, v, 0, 1);
+
+    int ans = 0;
+    for (int i = 0; i < n; i++) {
+        if (dist[i][0] < dist[i][1]) {
+            ans = max(ans, dist[i][1] - 1);
+        }
+    }
+    cout << ans << endl;
 }
