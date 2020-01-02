@@ -24,8 +24,8 @@ using ULL = unsigned long long;
 
 
 // optional
-#define EPS (1e - 7)
-#define PI (acos(-1))
+const double EPS =  1e-7;
+const double PI  = acos(-1);
 
 
 // DFS template
@@ -67,6 +67,7 @@ void ruiseki_wa() {
 // acc[x + 1][y + 1] = acc[x][y = 1] + acc[x + 1][y] - acc[x][y] + a[x][y]
 
 // しゃくとり法
+// cf: imos 法
 void shakutori() {
     int right = 0;
     for (int left = 0; left < 100; ++left) {
@@ -76,6 +77,7 @@ void shakutori() {
             ++right;
         }
 
+    // 半開区間
     /* break した状態で right は条件を満たす最大なので、何かする */
     // ex: res += (right - left);
 
@@ -85,6 +87,21 @@ void shakutori() {
     }
 }
 
+// めぐる式二分探索
+int binary_search(vector<int> v, int key) {
+    // v[index] >= key という条件を満たす最小の index を見つける
+
+    int ng = -1;
+    int ok = static_cast<int>(v.size());
+
+    while (abs(ok - ng) > 1) {
+        int mid = (ok + ng) / 2;
+
+        if (v[mid] >= key) ok = mid;
+        else ng = mid;
+    }
+    return ok;
+}
 int gcd(int a, int b) {
     if (a < b) return gcd(b, a);
 
@@ -168,73 +185,7 @@ struct Combination {
         return fac[n] * (finv[k] * finv[n - k] % MOD) % MOD;
     }
 };
-// template<typename T>
-// struct Combination {
-//     vector<T> fact, rfact, inv;
-//     const LL MOD = 1e9 + 7;
-//     Combination(int size) : fact(size + 1), rfact(size + 1), inv(size + 1) {
-//         fact[0] = fact[1] = 1;
-//         rfact[0] = rfact[1] = 1;
-//         inv[1] = 1;
-//         for (int i = 2; i <= size; i++) {
-//             fact[i] = fact[i - 1] * i % MOD;
-//             inv[i] = MOD - inv[MOD % i] * (MOD / i) % MOD;
-//             rfact[i] = rfact[i - 1] * inv[i] % MOD;
-//         }
-//     }
-//     LL com(int n, int k) {
-//         if (n < k) return 0;
-//         if (n < 0 or k < 0) return 0;
-//         return fact[n] * (rfact[k] * rfact[n - k] % MOD) % MOD;
-//     }
 
-// };
-
-// Graph
-using Weight = int;
-struct Edge {
-    int src, dst;
-    Weight weight;
-    Edge(int src, int dst, Weight weight) :
-        src(src), dst(dst), weight(weight) { }
-};
-bool operator < (const Edge &e, const Edge &f) {
-  return e.weight != f.weight ? e.weight > f.weight : // !!INVERSE!!
-    e.src != f.src ? e.src < f.src : e.dst < f.dst;
-}
-
-using Edges = vector<Edge>;
-using Graph = vector<Edges>;
-
-void dijkstra(const Graph &g, int s, vector<Weight> &dist, vector<int> &prev) {
-    const int INF = 1e9;
-    int n = g.size();
-    dist.assign(n, INF); dist[s] = 0;
-    prev.assign(n, -1);
-    priority_queue<Edge> Q; // "e < f" <=> "e.weight > f.weight"
-    for (Q.push(Edge(-2, s, 0)); not Q.empty(); ) {
-        Edge e = Q.top();
-        Q.pop();
-
-        if (prev[e.dst] != -1) continue;
-
-        prev[e.dst] = e.src;
-        for (auto f = g[e.dst].begin(); f != g[e.dst].end(); f++) {
-            if (dist[f->dst] > e.weight+f->weight) {
-                dist[f->dst] = e.weight+f->weight;
-                Q.push(Edge(f->src, f->dst, e.weight+f->weight));
-            }
-        }
-    }
-}
-vector<int> build_path(const vector<int> &prev, int t) {
-    vector<int> path;
-    for (int u = t; u >= 0; u = prev[u]) {
-        path.push_back(u);
-    }
-    reverse(path.begin(), path.end());
-    return path;
-}
 void longest_common_subsequence() {
     string s, t;
     cin >> s;
@@ -279,18 +230,6 @@ void edit_distance() {
 }
 // bit DP
 // dp[S] = min{i が集合 S に含まれるとき} (dp[S - {i}] + cost(S \ {i}, i));
-
-
-// void dfs(int v, int parent) {
-//     for (auto nv : graph[v]) {
-//         if (nv == parent) continue; // 逆流防止
-//         dfs(nv, v);
-//     }
-// }
-// int main() {
-//     int root = 0;
-//     dfs(root, -1); // root の parent は -1
-// }
 
 template<typename T>
 struct BellmanFord1 {
@@ -420,10 +359,12 @@ struct UnionFind {
 
 // しゃくとり法 (尺取り法) の解説と、それを用いる問題のまとめ
 // https://qiita.com/drken/items/ecd1a472d3a0e7db8dce
+using Graph = vector<vector<pair<int, LL>>>;
+const LL INF = (1LL << 60);
 vector<LL> dijkstra(const Graph &g, int s) {
     int n = g.size();
     vector<LL> dist(n, INF);
-    min_priority_queue<pair<LL, int>> que;
+    priority_queue<pair<LL, int>, vector<pair<LL, int>>, greater<>> que;
 
     que.push({0, s});
     dist[s] = 0;
@@ -433,7 +374,7 @@ vector<LL> dijkstra(const Graph &g, int s) {
         int v = dv.second;
 
         if (dist[v] < d) continue;
-        for (auto e : g[v]) {
+        for (auto e: g[v]) {
             if (dist[v] + e.second < dist[e.first]) {
                 dist[e.first] = dist[v] + e.second;
                 que.push({dist[e.first], e.first});
