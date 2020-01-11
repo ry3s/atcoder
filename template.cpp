@@ -102,17 +102,17 @@ int binary_search(vector<int> v, int key) {
     }
     return ok;
 }
-int gcd(int a, int b) {
+long long gcd(long long a, long long b) {
     if (a < b) return gcd(b, a);
 
-    int r;
+    long long r;
     while ((r = a % b)) {
         a = b;
         b = r;
     }
     return b;
 }
-int lcm(int a, int b) {
+long long lcm(long long a, long long b) {
     return a * b / gcd(a, b);
 }
 
@@ -130,8 +130,8 @@ void bit_exhaustive_search() {
 }
 
 // power(x, n, mod) ::= (x ^ n) % mod
-int power(int base, int n, int mod) {
-    int ret = 1;
+long long power(long long base, long long n, long long mod) {
+    long long ret = 1;
 
     while (n > 0) {
         if (n & 1) {
@@ -142,14 +142,40 @@ int power(int base, int n, int mod) {
     }
     return ret;
 }
-
-bool is_prime(int x) {
-    for (int i = 2; i * i <= x; i++) {
+bool is_prime(long long x) {
+    for (long long i = 2; i * i <= x; i++) {
         if (x % i == 0) return false;
     }
     return true;
 }
+// 約数列挙
+vector<long long> make_divisors(long long n) {
+    vector<long long> res;
 
+    for (long long i = 1LL; i * i <= n; ++i) {
+        if (n % i == 0) {
+            res.push_back(i);
+            if (i * i != n) res.push_back(n / i);
+        }
+    }
+
+    sort(res.begin(), res.end());
+    return res;
+}
+// 素因数分解
+map<long long, int> prime_factor(long long n) {
+    map<long long, int> ret;
+
+    for (long long i = 2; i * i <= n; i++) {
+        while (n % i == 0) {
+            ret[i]++;
+            n /= i;
+        }
+    }
+
+    if (n != 1) ret[n] = 1;
+    return ret;
+}
 // 組み合わせ combination
 const int MAX_C = 2100;
 LL com[MAX_C][MAX_C];
