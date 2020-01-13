@@ -88,7 +88,7 @@ void shakutori() {
 }
 
 // めぐる式二分探索
-int binary_search(vector<int> v, int key) {
+int binary_search(const vector<int>& v, int key) {
     // v[index] >= key という条件を満たす最小の index を見つける
 
     int ng = -1;
