@@ -19,64 +19,78 @@
 using namespace std;
 using LL = long long;
 using ULL = unsigned long long;
-const long long MOD = 1e9 + 7;
-long long gcd(long long a, long long b) {
-    if (a < b) return gcd(b, a);
+const long long mod = 1e9 + 7;
+map<long long, int>
+prime_factor(long long n) {
+    map<long long, int> ret;
 
-    long long r;
-    while ((r = a % b)) {
-        a = b;
-        b = r;
-    }
-    return b;
-}
-long long lcm(long long a, long long b) {
-    return a * b / gcd(a, b);
-}
-
-vector<long long> make_divisors(long long n) {
-    vector<long long> res;
-
-    for (long long i = 1LL; i * i <= n; ++i) {
-        if (n % i == 0) {
-            res.push_back(i);
-            if (i * i != n) res.push_back(n / i);
+    for (long long i = 2; i * i <= n; i++) {
+        while (n % i == 0) {
+            ret[i]++;
+            n /= i;
         }
     }
 
-    sort(res.begin(), res.end());
-    return res;
+    if (n != 1) ret[n] = 1;
+    return ret;
 }
-int main() {
+
+long long
+mod_pow(long long a, long long n) {
+    long long ret = 1;
+    while (n > 0) {
+        if (n & 1) ret = ret * a % mod;
+        a = a * a % mod;
+        n >>= 1;
+    }
+    return ret;
+}
+
+long long
+mod_inv(long long a) {
+    long long b = mod, u = 1, v = 0;
+    while (b) {
+        long long t = a / b;
+        a -= t * b; swap(a, b);
+        u -= t * v; swap(u, v);
+    }
+    u %= mod;
+    if (u < 0) u += mod;
+    return u;
+}
+
+int
+main() {
     int n; cin >> n;
-    vector<long long> arr(n);
-    rep(i, n) cin >> arr[i];
 
-    long long lcms = 1;
-    auto x = arr[0];
-    bool is_same = true;
-    for (auto a: arr) {
-        lcms = lcm(lcms, a);
-        if (x != a) is_same = false;
+    vector<long long> arr(n);
+    vector<map<long long, int>> vec;
+    vector<long long> count(1000000);
+    rep(i, n) {
+        cin >> arr[i];
+        vec.push_back(prime_factor(arr[i]));
     }
-    auto divs = make_divisors(lcms);
-    sort(divs.begin(), divs.end());
-    if (is_same) {
-        cout << n << endl;
-    } else {
-        for (auto d: divs) {
-            bool ok = true;
-            for (auto a: arr) {
-                if (d % a != 0) ok = false;
-            }
-            if (ok) {
-                long long ans = 0;
-                for (auto a: arr) {
-                    ans = (ans + lcms / a) % MOD;
-                }
-                cout << ans % MOD << endl;
-                return 0;
-            }
+
+    for (auto mp: vec) {
+        for (auto pn: mp) {
+            count[pn.first] = max(count[pn.first], (long long)pn.second);
         }
     }
+
+    long long l = 1;
+    for (int i= 2; i <= 1000000; i++) {
+        if (count[i]) {
+            l *= mod_pow(i, count[i]);
+            l %= mod;
+        }
+    }
+
+    long long ans = 0;
+    for (int i = 0; i < n; i++) {
+        ans += (l * mod_inv(arr[i])) % mod;
+        ans %= mod;
+    }
+
+    ans %= mod;
+    cout << ans << endl;
 }
