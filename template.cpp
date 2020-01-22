@@ -22,11 +22,9 @@ using namespace std;
 using LL = long long int;
 using ULL = unsigned long long;
 
-
 // optional
 const double EPS =  1e-7;
 const double PI  = acos(-1);
-
 
 // DFS template
 using myGraph = vector<vector<int>>;
@@ -102,17 +100,17 @@ int binary_search(const vector<int>& v, int key) {
     }
     return ok;
 }
-long long gcd(long long a, long long b) {
+int64_t gcd(int64_t a, int64_t b) {
     if (a < b) return gcd(b, a);
 
-    long long r;
+    int64_t r;
     while ((r = a % b)) {
         a = b;
         b = r;
     }
     return b;
 }
-long long lcm(long long a, long long b) {
+int64_t lcm(int64_t a, int64_t b) {
     return a * b / gcd(a, b);
 }
 
@@ -130,8 +128,8 @@ void bit_exhaustive_search() {
 }
 
 // power(x, n, mod) ::= (x ^ n) % mod
-long long power(long long base, long long n, long long mod) {
-    long long ret = 1;
+int64_t power(int64_t base, int64_t n, int64_t mod) {
+    int64_t ret = 1;
 
     while (n > 0) {
         if (n & 1) {
@@ -142,17 +140,17 @@ long long power(long long base, long long n, long long mod) {
     }
     return ret;
 }
-bool is_prime(long long x) {
-    for (long long i = 2; i * i <= x; i++) {
+bool is_prime(int64_t x) {
+    for (int64_t i = 2; i * i <= x; i++) {
         if (x % i == 0) return false;
     }
     return true;
 }
 // 約数列挙
-vector<long long> make_divisors(long long n) {
-    vector<long long> res;
+vector<int64_t> make_divisors(int64_t n) {
+    vector<int64_t> res;
 
-    for (long long i = 1LL; i * i <= n; ++i) {
+    for (int64_t i = 1LL; i * i <= n; ++i) {
         if (n % i == 0) {
             res.push_back(i);
             if (i * i != n) res.push_back(n / i);
@@ -163,10 +161,10 @@ vector<long long> make_divisors(long long n) {
     return res;
 }
 // 素因数分解
-map<long long, int> prime_factor(long long n) {
-    map<long long, int> ret;
+map<int64_t, int> prime_factor(int64_t n) {
+    map<int64_t, int> ret;
 
-    for (long long i = 2; i * i <= n; i++) {
+    for (int64_t i = 2; i * i <= n; i++) {
         while (n % i == 0) {
             ret[i]++;
             n /= i;
@@ -178,8 +176,8 @@ map<long long, int> prime_factor(long long n) {
 }
 // 組み合わせ combination
 const int MAX_C = 2100;
-LL com[MAX_C][MAX_C];
-const LL MOD = 1e9 + 7;
+int64_t com[MAX_C][MAX_C];
+const int64_t MOD = 1e9 + 7;
 void calc_com() {
     memset(com, 0, sizeof(com));
     com[0][0] = 1;
@@ -193,7 +191,7 @@ void calc_com() {
 template <typename T>
 struct Combination {
     vector<T> fac, finv, inv;
-    const LL MOD = 1e9 + 7;
+    const int64_t MOD = 1e9 + 7;
     Combination(int size)
         : fac(size + 1), finv(size + 1), inv(size + 1) {
         fac[0] = fac[1] = 1;
@@ -205,7 +203,7 @@ struct Combination {
             finv[i] = finv[i - 1] * inv[i] % MOD;
         }
     }
-    long long com(int n, int k){
+    int64_t com(int n, int k){
         if (n < k) return 0;
         if (n < 0 || k < 0) return 0;
         return fac[n] * (finv[k] * finv[n - k] % MOD) % MOD;
@@ -260,9 +258,9 @@ void edit_distance() {
 template<typename T>
 struct BellmanFord1 {
     struct Edge {
-        int from, to; LL cost;
+        int from, to; int64_t cost;
         Edge() {}
-        Edge(int from, int to, LL cost): from(from), to(to), cost(cost) {}
+        Edge(int from, int to, int64_t cost): from(from), to(to), cost(cost) {}
     };
 
     int n;
@@ -271,7 +269,7 @@ struct BellmanFord1 {
     BellmanFord1(int n): n(n), graph(n), used(n, 0), reach(n, 0) {}
 
     vector<Edge> edges;
-    void add_edge(int from, int to, LL cost) {
+    void add_edge(int from, int to, int64_t cost) {
         edges.push_back(Edge(from, to, cost));
         graph[from].push_back(to);
     }
@@ -284,14 +282,14 @@ struct BellmanFord1 {
             dfs(u);
         }
     }
-    LL build(int from, int to, bool &neg_loop) {
+    int64_t build(int from, int to, bool &neg_loop) {
         rep(i, n) {
             fill(used.begin(), used.end(), 0);
             dfs(i);
             reach[i] = used[to];
         }
 
-        vector<LL> dist(n, 1e18);
+        vector<int64_t> dist(n, 1e18);
         dist[from] = 0;
 
         rep(i, n) {
@@ -320,19 +318,19 @@ struct BellmanFord1 {
 };
 struct BellmanFord {
     struct Edge {
-        int from, to; LL cost;
+        int from, to; int64_t cost;
         Edge() {}
-        Edge(int from, int to, LL cost): from(from), to(to), cost(cost) {}
+        Edge(int from, int to, int64_t cost): from(from), to(to), cost(cost) {}
     };
-    const LL INF = (1LL << 60);
+    const int64_t INF = (1LL << 60);
     int n;
     vector<vector<int>> graph;
     vector<int> used, reach;
-    vector<LL> dist;
+    vector<int64_t> dist;
     BellmanFord(int n): n(n), graph(n), used(n, 0), reach(n, 0), dist(n, INF) {}
 
     vector<Edge> edges;
-    void add_edge(int from, int to, LL cost) {
+    void add_edge(int from, int to, int64_t cost) {
         edges.push_back(Edge(from, to, cost));
         graph[from].push_back(to);
     }
@@ -385,18 +383,18 @@ struct UnionFind {
 
 // しゃくとり法 (尺取り法) の解説と、それを用いる問題のまとめ
 // https://qiita.com/drken/items/ecd1a472d3a0e7db8dce
-using Graph = vector<vector<pair<int, LL>>>;
-const LL INF = (1LL << 60);
-vector<LL> dijkstra(const Graph &g, int s) {
+using Graph = vector<vector<pair<int, int64_t>>>;
+const int64_t INF = (1LL << 60);
+vector<int64_t> dijkstra(const Graph &g, int s) {
     int n = g.size();
-    vector<LL> dist(n, INF);
-    priority_queue<pair<LL, int>, vector<pair<LL, int>>, greater<>> que;
+    vector<int64_t> dist(n, INF);
+    priority_queue<pair<int64_t, int>, vector<pair<int64_t, int>>, greater<>> que;
 
     que.push({0, s});
     dist[s] = 0;
     while(not que.empty()) {
         auto dv = que.top(); que.pop();
-        LL d = dv.first;
+        int64_t d = dv.first;
         int v = dv.second;
 
         if (dist[v] < d) continue;
@@ -409,9 +407,9 @@ vector<LL> dijkstra(const Graph &g, int s) {
     }
     return dist;
 }
-bool warshall_floyd(vector<vector<LL>> &dist) {
+bool warshall_floyd(vector<vector<int64_t>> &dist) {
     int n = dist.size();
-    const LL INF = (1LL << 60);
+    const int64_t INF = (1LL << 60);
     rep(k, n) rep(i, n) if (dist[i][k] != INF) {
         rep(j, n) if (dist[k][j] != INF) {
             dist[i][j]= min(dist[i][j] , dist[i][k] + dist[k][j]);
