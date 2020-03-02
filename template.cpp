@@ -147,7 +147,7 @@ bool is_prime(int64_t x) {
     return true;
 }
 // 約数列挙
-vector<int64_t> make_divisors(int64_t n) {
+vector<int64_t> enumerate_divisors(int64_t n) {
     vector<int64_t> res;
 
     for (int64_t i = 1LL; i * i <= n; ++i) {
