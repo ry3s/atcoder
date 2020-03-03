@@ -1,12 +1,10 @@
+import numpy as np
+
 n, k = map(int, input().split())
-ps = list(map(int, input().split()))
+ps = np.array(list(map(int, input().split())))
 
-acc = [0]
-for p in ps:
-    acc.append(acc[-1] + p)
+acc = np.zeros(n + 1, np.int32)
+acc[1:] = ps.cumsum()
 
-ans = 0.0
-for i in range(1, n - k - 1):
-    ans = max(ans, (acc[i + k] - acc[i]) / k)
-
-print(ans)
+length_k_sums = acc[k:] - acc[:-k]
+print(length_k_sums.max() / 2)
