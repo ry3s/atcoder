@@ -1,0 +1,5 @@
+let t = Scanf.scanf " %d" (fun x -> x)
+let n = Scanf.scanf " %d" (fun x -> x)
+let a = Array.init n (fun _ -> Scanf.scanf " %d" (fun x -> x))
+let m = Scanf.scanf " %d" (fun x -> x)
+let b = Array.init n (fun _ -> Scanf.scanf " %d" (fun x -> x))
