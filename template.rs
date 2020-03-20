@@ -1,7 +1,14 @@
 use std::io::{stdin, Read, StdinLock};
 use std::str::FromStr;
-use std::collections::HashMap;
 
+fn main() {
+    let cin = stdin();
+    let cin = cin.lock();
+    let mut sc = Scanner::new(cin);
+
+}
+
+// from: http://ir5.hatenablog.com/entry/20171209/1512821837
 #[allow(dead_code)]
 struct Scanner<'a> {
     cin: StdinLock<'a>,
@@ -22,5 +29,159 @@ impl<'a> Scanner<'a> {
 
     fn input<T: FromStr>(&mut self) -> T {
         self.read().unwrap()
+    }
+}
+
+trait BinarySearch<T> {
+    // key 以上の値が最初に現れる index を返す
+    fn lower_bound(&self, &T) -> usize;
+    // key より大きい値が最初に現れる index を返す
+    fn upper_bound(&self, &T) -> usize;
+}
+use std::cmp::Ordering;
+impl<T: Ord> BinarySearch<T> for [T] {
+    fn lower_bound(&self, key: &T) -> usize {
+        let mut ng = -1;
+        let mut ok = self.len() as i64;
+        while (ok - ng).abs() > 1 {
+            let mid = (ok + ng) / 2;
+            match key.cmp(&self[mid as usize]) {
+                Ordering::Less | Ordering::Equal => {
+                    ok = mid;
+                }
+                Ordering::Greater => {
+                    ng = mid;
+                }
+            }
+        }
+        ok as usize
+    }
+
+    fn upper_bound(&self, key: &T) -> usize {
+        let mut ng = -1;
+        let mut ok = self.len() as i64;
+        while (ok - ng).abs() > 1 {
+            let mid = (ok + ng) / 2;
+            match key.cmp(&self[mid as usize]) {
+                Ordering::Less => {
+                    ok = mid;
+                }
+                Ordering::Equal | Ordering::Greater => {
+                    ng = mid;
+                }
+            }
+        }
+        ok as usize
+    }
+}
+
+fn count_digit(n: i64) -> i64 {
+    let mut n = n;
+    let mut res = 0;
+    while n > 0 {
+        res += 1;
+        n /= 10;
+    }
+    res
+}
+
+fn digit_sum(n: i64) -> i64 {
+    let mut n = n;
+    let mut res = 0;
+    while n > 0 {
+        res += n % 10;
+        n /= 10;
+    }
+    res
+}
+fn enumerate_divisors(n: i64) -> Vec<i64> {
+    let mut ret = Vec::new();
+    let mut i = 1;
+    while i * i <= n {
+        if n % i == 0 {
+            ret.push(i);
+            if i != 1 && i * i != n {
+                ret.push(n / i);
+            }
+        }
+        i += 1;
+    }
+    ret
+}
+
+fn gcd(m: i64, n: i64) -> i64 {
+    if m < n {
+        gcd(n, m)
+    } else {
+        if n == 0 {
+            m
+        } else {
+            gcd(n, m % n)
+        }
+    }
+}
+
+fn lcm(m: i64, n: i64) -> i64 {
+    m / gcd(m, n) * n
+}
+
+fn mod_pow(x: i64, n:i64, modulo: i64) -> i64 {
+    let mut n = n;
+    let mut x = x;
+    let mut res = 1;
+    while n > 0 {
+        if n & 1 == 1{
+            res = res * x % modulo;
+        }
+        x = x * x % modulo;
+        n >>= 1;
+    }
+    res
+}
+
+struct UnionFind {
+    par: Vec<usize>,
+    rank: Vec<usize>,
+}
+
+impl UnionFind {
+    fn new(n: usize) -> Self {
+        let mut vec = vec![0; n];
+        for i in 0..n {
+            vec[i] = i;
+        }
+        UnionFind {
+            par: vec,
+            rank: vec![0; n],
+        }
+    }
+
+    fn find(&mut self, x: usize) -> usize {
+        if x == self.par[x] {
+            x
+        } else {
+            let par = self.par[x];
+            let res = self.find(par);
+            self.par[x] = res;
+            res
+        }
+    }
+
+    fn is_same(&mut self, a: usize, b: usize) -> bool {
+        self.find(a) == self.find(b)
+    }
+
+    fn merge(&mut self, a: usize, b: usize) {
+        let a_par = self.find(a);
+        let b_par = self.find(b);
+
+        if self.rank[a_par] > self.rank[b_par] {
+            self.par[b_par] = a_par;
+        } else {
+            self.par[a_par] = b_par;
+            if self.rank[a_par] == self.rank[b_par] {
+                self.rank[b_par] += 1;
+            }
+        }
     }
 }
