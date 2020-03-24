@@ -32,41 +32,36 @@ impl<'a> Scanner<'a> {
     }
 }
 
+use std::collections::BTreeMap;
 fn main() {
     let cin = stdin();
     let cin = cin.lock();
     let mut sc = Scanner::new(cin);
 
     let n: i64 = sc.input();
-    let arr: Vec<(i64, i64)> = (0..n)
-        .map(|_| (sc.input(), sc.input()))
-        .collect();
+    let arr: Vec<i64> = sc.vec(n as usize);
 
-    // x[m] 以下にできるか？
-    let check = |x| {
-        let mut ts = vec![0; n as usize];
-        for y in arr.iter().enumerate() {
-            let (i, &(h, s)) = y;
-            if x - h < 0 { return false; }
-
-            ts[i] = std::cmp::min(111110i64, (x - h) / s);
-        }
-        ts.sort();
-        for (i, t) in ts.iter().enumerate() {
-            if t < &(i as i64) { return false; }
-        }
-        true
-    };
-
-    let mut ok = 10000000000 * 1000000;
-    let mut ng = -1i64;
-    while (ok - ng).abs() > 1 {
-        let mid = (ok + ng) / 2;
-        if check(mid) {
-            ok = mid;
-        } else {
-            ng = mid;
-        }
+    let mut map = BTreeMap::new();
+    for a in &arr {
+        map.entry(a).and_modify(|x| *x += 1).or_insert(1);
     }
-    println!("{}", ok);
+
+    let mut sum = 0;
+    for (k, v) in &map {
+        sum += if v * (v - 1) / 2 > 0 {
+            v * (v - 1) / 2
+        } else {
+            0
+        };
+    }
+
+    for a in &arr {
+        let x = map.get(a).unwrap();
+        let ans = sum - x * (x - 1) / 2 + if x - 1 > 1 {
+            (x - 1) * (x - 2) / 2
+        } else {
+            0
+        };
+        println!("{}", ans);
+    }
 }

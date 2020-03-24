@@ -185,3 +185,19 @@ impl UnionFind {
         }
     }
 }
+
+struct Graph {
+    n: usize,
+    adj_list: Vec<Vec<usize>>,
+}
+
+impl Graph {
+    fn new(n: usize) -> Self {
+        let adj_list = vec![vec![]; n];
+        Graph { n: n, adj_list: adj_list }
+    }
+
+    fn add_edge(&mut self, u: usize, v: usize) {
+        self.adj_list[u].push(v);
+    }
+}
