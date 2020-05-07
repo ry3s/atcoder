@@ -8,7 +8,7 @@ struct Scanner<'a> {
 #[allow(dead_code)]
 impl<'a> Scanner<'a> {
     fn new(cin: StdinLock<'a>) -> Scanner<'a> {
-        Scanner { cin }
+        Scanner { cin: cin }
     }
 
     fn read<T: FromStr>(&mut self) -> Option<T> {
@@ -37,26 +37,10 @@ fn main() {
     let cin = cin.lock();
     let mut sc = Scanner::new(cin);
 
-    let s: String = sc.input();
-    let mut chs: Vec<usize> = s
-        .chars()
-        .into_iter()
-        .map(|x| x.to_digit(10).unwrap() as usize)
-        .collect();
-    chs.reverse();
+    let n: i64 = sc.input();
+    let m: i64 = sc.input();
+    let arr: Vec<i64> = sc.vec(m as usize);
 
-    let mut deg = 1usize;
-    let mut cnt = [0; 2019];
-    cnt[0] = 1;
-    let mut cur = 0usize;
-    for ch in chs {
-        cur += ch * deg;
-        cur %= 2019;
-        deg *= 10;
-        deg %= 2019;
-        cnt[cur] += 1;
-    }
-
-    let ans = cnt.iter().fold(0, |acc, x| acc + x * (x - 1) / 2);
-    println!("{}", ans);
+    let sum: i64 = arr.iter().sum();
+    println!("{}", if n - sum >= 0 { n - sum } else { -1 });
 }
