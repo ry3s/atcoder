@@ -5,7 +5,6 @@ fn main() {
     let cin = stdin();
     let cin = cin.lock();
     let mut sc = Scanner::new(cin);
-
 }
 
 // from: http://ir5.hatenablog.com/entry/20171209/1512821837
@@ -20,7 +19,11 @@ impl<'a> Scanner<'a> {
     }
 
     fn read<T: FromStr>(&mut self) -> Option<T> {
-        let token = self.cin.by_ref().bytes().map(|c| c.unwrap() as char)
+        let token = self
+            .cin
+            .by_ref()
+            .bytes()
+            .map(|c| c.unwrap() as char)
             .skip_while(|c| c.is_whitespace())
             .take_while(|c| !c.is_whitespace())
             .collect::<String>();
@@ -125,12 +128,12 @@ fn lcm(m: i64, n: i64) -> i64 {
     m / gcd(m, n) * n
 }
 
-fn mod_pow(x: i64, n:i64, modulo: i64) -> i64 {
+fn mod_pow(x: i64, n: i64, modulo: i64) -> i64 {
     let mut n = n;
     let mut x = x;
     let mut res = 1;
     while n > 0 {
-        if n & 1 == 1{
+        if n & 1 == 1 {
             res = res * x % modulo;
         }
         x = x * x % modulo;
@@ -186,20 +189,49 @@ impl UnionFind {
     }
 }
 
+#[derive(Clone, Debug, PartialEq)]
+struct Edge {
+    to: usize,
+    cost: i64,
+}
+#[derive(Clone, Debug)]
 struct Graph {
     n: usize,
-    adj_list: Vec<Vec<usize>>,
+    adj_list: Vec<Vec<Edge>>,
 }
 
 impl Graph {
     fn new(n: usize) -> Self {
         let adj_list = vec![vec![]; n];
-        Graph { n: n, adj_list: adj_list }
+        Graph { n, adj_list }
     }
 
-    fn add_edge(&mut self, u: usize, v: usize) {
+    fn add_edge(&mut self, u: usize, v: Edge) {
         self.adj_list[u].push(v);
     }
+}
+
+fn shortest_path(graph: &Graph, start: usize) -> Vec<i64> {
+    use std::collections::BinaryHeap;
+    let mut dist: Vec<_> = (0..graph.n).map(|_| std::i64::MAX).collect();
+
+    let mut heap = BinaryHeap::new();
+    dist[start] = 0i64;
+    heap.push(std::cmp::Reverse((0i64, start)));
+
+    while let Some(std::cmp::Reverse((cost, cur))) = heap.pop() {
+        if cost > dist[cur] {
+            continue;
+        }
+
+        for next in graph.adj_list[cur].iter() {
+            if cost + next.cost < dist[next.to] {
+                heap.push(std::cmp::Reverse((cost + next.cost, next.to)));
+                dist[next.to] = cost + next.cost;
+            }
+        }
+    }
+    dist
 }
 pub trait LexicalPermutation {
     /// Return `true` if the slice was permuted, `false` if it is already
@@ -210,15 +242,20 @@ pub trait LexicalPermutation {
     fn prev_permutation(&mut self) -> bool;
 }
 
-impl<T> LexicalPermutation for [T] where T: Ord {
+impl<T> LexicalPermutation for [T]
+where
+    T: Ord,
+{
     /// Original author in Rust: Thomas Backman <serenity@exscape.org>
     fn next_permutation(&mut self) -> bool {
         // These cases only have 1 permutation each, so we can't do anything.
-        if self.len() < 2 { return false; }
+        if self.len() < 2 {
+            return false;
+        }
 
         // Step 1: Identify the longest, rightmost weakly decreasing part of the vector
         let mut i = self.len() - 1;
-        while i > 0 && self[i-1] >= self[i] {
+        while i > 0 && self[i - 1] >= self[i] {
             i -= 1;
         }
 
@@ -229,12 +266,12 @@ impl<T> LexicalPermutation for [T] where T: Ord {
 
         // Step 2: Find the rightmost element larger than the pivot (i-1)
         let mut j = self.len() - 1;
-        while j >= i && self[j] <= self[i-1]  {
+        while j >= i && self[j] <= self[i - 1] {
             j -= 1;
         }
 
         // Step 3: Swap that element with the pivot
-        self.swap(j, i-1);
+        self.swap(j, i - 1);
 
         // Step 4: Reverse the (previously) weakly decreasing part
         self[i..].reverse();
@@ -244,11 +281,13 @@ impl<T> LexicalPermutation for [T] where T: Ord {
 
     fn prev_permutation(&mut self) -> bool {
         // These cases only have 1 permutation each, so we can't do anything.
-        if self.len() < 2 { return false; }
+        if self.len() < 2 {
+            return false;
+        }
 
         // Step 1: Identify the longest, rightmost weakly increasing part of the vector
         let mut i = self.len() - 1;
-        while i > 0 && self[i-1] <= self[i] {
+        while i > 0 && self[i - 1] <= self[i] {
             i -= 1;
         }
 
@@ -262,16 +301,15 @@ impl<T> LexicalPermutation for [T] where T: Ord {
 
         // Step 3: Find the rightmost element equal to or bigger than the pivot (i-1)
         let mut j = self.len() - 1;
-        while j >= i && self[j-1] < self[i-1]  {
+        while j >= i && self[j - 1] < self[i - 1] {
             j -= 1;
         }
 
         // Step 4: Swap that element with the pivot
-        self.swap(i-1, j);
+        self.swap(i - 1, j);
 
         true
     }
-
 }
 
 #[test]
@@ -291,4 +329,53 @@ fn lexical() {
         c += 1;
     }
     assert_eq!(c, 5);
+}
+
+struct Combination {
+    max_n: usize,
+    modulo: usize,
+    fac: Vec<usize>,
+    finv: Vec<usize>,
+    inv: Vec<usize>,
+}
+
+impl Combination {
+    fn new(max_n: usize, modulo: usize) -> Combination {
+        let mut fac = vec![0; max_n];
+        let mut finv = vec![0; max_n];
+        let mut inv = vec![0; max_n];
+        fac[0] = 1;
+        fac[1] = 1;
+        finv[0] = 1;
+        finv[1] = 1;
+        inv[1] = 1;
+        for i in 2..max_n {
+            fac[i] = fac[i - 1] * i % modulo;
+            inv[i] = modulo - inv[modulo % i] * (modulo / i) % modulo;
+            finv[i] = finv[i - 1] * inv[i] % modulo;
+        }
+        Combination {
+            max_n: max_n,
+            modulo: modulo,
+            fac: fac,
+            finv: finv,
+            inv: inv,
+        }
+    }
+
+    fn com(&self, n: usize, k: usize) -> usize {
+        if n < k || n < 0 || k < 0 {
+            0
+        } else {
+            self.fac[n] * (self.finv[k] * self.finv[n - k] % self.modulo) % self.modulo
+        }
+    }
+
+    fn hcom(&self, n: usize, k: usize) -> usize {
+        if n == 0 && k == 0 {
+            1
+        } else {
+            self.com(n + k - 1, k)
+        }
+    }
 }

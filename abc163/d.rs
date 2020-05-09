@@ -40,4 +40,14 @@ fn main() {
     let n: usize = sc.input();
     let k: usize = sc.input();
     const MOD: usize = 1_000_000_007;
+
+    let mut ans: usize = 0;
+    for x in k..=n + 1 {
+        let a  = x * (x - 1) / 2;
+        let b = (n * 2 - x + 1) * x / 2;
+        let add = b - a + 1;
+        ans = (ans + add) % MOD;
+    }
+
+    println!("{}", ans);
 }
