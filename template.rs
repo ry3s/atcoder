@@ -80,22 +80,22 @@ impl<T: Ord> BinarySearch<T> for [T] {
 
 fn count_digit(n: i64) -> i64 {
     let mut n = n;
-    let mut res = 0;
+    let mut ret = 0;
     while n > 0 {
-        res += 1;
+        ret += 1;
         n /= 10;
     }
-    res
+    ret
 }
 
 fn digit_sum(n: i64) -> i64 {
     let mut n = n;
-    let mut res = 0;
+    let mut ret = 0;
     while n > 0 {
-        res += n % 10;
+        ret += n % 10;
         n /= 10;
     }
-    res
+    ret
 }
 fn enumerate_divisors(n: i64) -> Vec<i64> {
     let mut ret = Vec::new();
@@ -131,15 +131,15 @@ fn lcm(m: i64, n: i64) -> i64 {
 fn mod_pow(x: i64, n: i64, modulo: i64) -> i64 {
     let mut n = n;
     let mut x = x;
-    let mut res = 1;
+    let mut ret = 1;
     while n > 0 {
         if n & 1 == 1 {
-            res = res * x % modulo;
+            ret = ret * x % modulo;
         }
         x = x * x % modulo;
         n >>= 1;
     }
-    res
+    ret
 }
 
 struct UnionFind {
@@ -164,9 +164,9 @@ impl UnionFind {
             x
         } else {
             let par = self.par[x];
-            let res = self.find(par);
-            self.par[x] = res;
-            res
+            let ret = self.find(par);
+            self.par[x] = ret;
+            ret
         }
     }
 
@@ -194,6 +194,12 @@ struct Edge {
     to: usize,
     cost: i64,
 }
+
+impl Edge {
+    fn new(to: usize, cost: i64) -> Edge {
+        Edge { to: to, cost: cost }
+    }
+}
 #[derive(Clone, Debug)]
 struct Graph {
     n: usize,
@@ -211,10 +217,12 @@ impl Graph {
     }
 }
 
-fn shortest_path(graph: &Graph, start: usize) -> Vec<i64> {
+fn shortest_path(graph: &Graph, start: usize) -> (Vec<i64>, Vec<Option<usize>>) {
     use std::collections::BinaryHeap;
-    let mut dist: Vec<_> = (0..graph.n).map(|_| std::i64::MAX).collect();
 
+    let n = graph.n;
+    let mut dist: Vec<_> = (0..graph.n).map(|_| std::i64::MAX).collect();
+    let mut prevs = vec![None; n];
     let mut heap = BinaryHeap::new();
     dist[start] = 0i64;
     heap.push(std::cmp::Reverse((0i64, start)));
@@ -226,13 +234,28 @@ fn shortest_path(graph: &Graph, start: usize) -> Vec<i64> {
 
         for next in graph.adj_list[cur].iter() {
             if cost + next.cost < dist[next.to] {
+                dist[next.to] = cost + 1;
+                prevs[next.to] = Some(cur);
                 heap.push(std::cmp::Reverse((cost + next.cost, next.to)));
-                dist[next.to] = cost + next.cost;
             }
         }
     }
-    dist
+    (dist, prevs)
 }
+
+fn get_path(to: usize, prevs: &Vec<Option<usize>>) -> Vec<usize> {
+    let mut path = vec![];
+    let mut cur = prevs[to].unwrap();
+    while let Some(next) = prevs[cur] {
+        path.push(cur);
+        cur = next;
+    }
+
+    path.reverse();
+    path
+}
+
+/// from https://docs.rs/permutohedron/0.2.4/permutohedron/
 pub trait LexicalPermutation {
     /// Return `true` if the slice was permuted, `false` if it is already
     /// at the last ordered permutation.
@@ -333,14 +356,14 @@ fn lexical() {
 
 struct Combination {
     max_n: usize,
-    modulo: usize,
     fac: Vec<usize>,
     finv: Vec<usize>,
     inv: Vec<usize>,
 }
 
 impl Combination {
-    fn new(max_n: usize, modulo: usize) -> Combination {
+    const MOD: usize = 1_000_000_007;
+    fn new(max_n: usize) -> Combination {
         let mut fac = vec![0; max_n];
         let mut finv = vec![0; max_n];
         let mut inv = vec![0; max_n];
@@ -350,13 +373,12 @@ impl Combination {
         finv[1] = 1;
         inv[1] = 1;
         for i in 2..max_n {
-            fac[i] = fac[i - 1] * i % modulo;
-            inv[i] = modulo - inv[modulo % i] * (modulo / i) % modulo;
-            finv[i] = finv[i - 1] * inv[i] % modulo;
+            fac[i] = fac[i - 1] * i % MOD;
+            inv[i] = MOD - inv[MOD % i] * (MOD / i) % MOD;
+            finv[i] = finv[i - 1] * inv[i] % MOD;
         }
         Combination {
             max_n: max_n,
-            modulo: modulo,
             fac: fac,
             finv: finv,
             inv: inv,
@@ -367,7 +389,7 @@ impl Combination {
         if n < k || n < 0 || k < 0 {
             0
         } else {
-            self.fac[n] * (self.finv[k] * self.finv[n - k] % self.modulo) % self.modulo
+            self.fac[n] * (self.finv[k] * self.finv[n - k] % MOD) % MOD
         }
     }
 
@@ -377,5 +399,147 @@ impl Combination {
         } else {
             self.com(n + k - 1, k)
         }
+    }
+}
+
+struct Bit {
+    // Binary Indexed Tree (1-indexed)
+    n: usize,
+    data: Vec<i64>,
+}
+
+impl Bit {
+    fn new(n: usize) -> Bit {
+        let mut m = 1;
+        while m < n {
+            m *= 2;
+        }
+        Bit {
+            n: n,
+            data: vec![0; m],
+        }
+    }
+
+    fn sum(&self, i: usize) -> i64 {
+        let mut i = i;
+        let mut ret = 0;
+        while i > 0 {
+            ret += self.data[i - 1];
+            i -= (i as i64 & -(i as i64)) as usize;
+        }
+        ret
+    }
+
+    fn add(&mut self, i: usize, x: i64) {
+        let mut i = i;
+        while i < self.n {
+            self.data[i - 1] += x;
+            i += (i as i64 & -(i as i64)) as usize;
+        }
+    }
+}
+
+#[derive(Clone, Copy)]
+struct ModInt(usize);
+const MOD: usize = 1_000_000_007;
+
+#[allow(dead_code)]
+impl ModInt {
+    fn new(n: usize) -> ModInt {
+        ModInt(n % MOD)
+    }
+
+    fn zero() -> ModInt {
+        ModInt(0)
+    }
+
+    fn one() -> ModInt {
+        ModInt(1)
+    }
+
+    fn pow(self, mut n: usize) -> ModInt {
+        let mut ret = ModInt::one();
+        let mut x = self;
+        while n > 0 {
+            if n & 1 == 1 {
+                ret *= x;
+            }
+            x *= x;
+            n >>= 1;
+        }
+        ret
+    }
+
+    fn inv(self) -> ModInt {
+        assert!(self.0 > 0);
+        self.pow(MOD - 2)
+    }
+}
+
+impl std::ops::Add for ModInt {
+    type Output = ModInt;
+    fn add(self, rhs: ModInt) -> Self::Output {
+        let mut d = self.0 + rhs.0;
+        if d >= MOD {
+            d -= MOD;
+        }
+        ModInt(d)
+    }
+}
+
+impl std::ops::AddAssign for ModInt {
+    fn add_assign(&mut self, rhs: ModInt) {
+        *self = *self + rhs;
+    }
+}
+
+impl std::ops::Sub for ModInt {
+    type Output = ModInt;
+    fn sub(self, rhs: ModInt) -> Self::Output {
+        let mut d = self.0 + MOD - rhs.0;
+        if d >= MOD {
+            d -= MOD;
+        }
+        ModInt(d)
+    }
+}
+
+impl std::ops::SubAssign for ModInt {
+    fn sub_assign(&mut self, rhs: ModInt) {
+        *self = *self - rhs;
+    }
+}
+
+impl std::ops::Mul for ModInt {
+    type Output = ModInt;
+    fn mul(self, rhs: ModInt) -> Self::Output {
+        ModInt(self.0 * rhs.0 % MOD)
+    }
+}
+
+impl std::ops::MulAssign for ModInt {
+    fn mul_assign(&mut self, rhs: ModInt) {
+        *self = *self * rhs;
+    }
+}
+
+impl std::ops::Neg for ModInt {
+    type Output = ModInt;
+    fn neg(self) -> Self::Output {
+        ModInt(if self.0 == 0 { 0 } else { MOD - self.0 })
+    }
+}
+
+impl std::fmt::Display for ModInt {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl std::str::FromStr for ModInt {
+    type Err = std::num::ParseIntError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let val = s.parse::<usize>()?;
+        Ok(ModInt::new(val))
     }
 }
