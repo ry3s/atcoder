@@ -543,3 +543,72 @@ impl std::str::FromStr for ModInt {
         Ok(ModInt::new(val))
     }
 }
+
+
+impl Magma for usize {
+    fn op(&self, rhs: &Self) -> Self {
+        *self.min(rhs)
+    }
+}
+
+impl Associative for usize {}
+
+impl Unital for usize {
+    fn identity() -> Self {
+        std::usize::MAX
+    }
+}
+
+pub trait Magma: Sized + Clone {
+  fn op(&self, rhs: &Self) -> Self;
+}
+
+pub trait Associative: Magma {}
+
+pub trait Unital: Magma {
+  fn identity() -> Self;
+}
+
+pub trait Monoid: Magma + Associative + Unital {}
+
+impl<T: Magma + Associative + Unital> Monoid for T {}
+
+pub struct SegmentTree<T: Monoid> {
+    node: Vec<T>,
+    sz: usize,
+}
+
+impl<T: Monoid> SegmentTree<T> {
+    pub fn init(vec: Vec<T>) -> Self {
+        let mut sz = 1;
+        while sz < vec.len() { sz *= 2; }
+        let mut node = vec![T::identity(); sz << 1];
+        for i in 0..vec.len() { node[i + sz] = vec[i].clone(); }
+        for i in (1..sz).rev() { node[i] = node[i << 1].op(&node[(i << 1) + 1]); }
+        SegmentTree { node: node, sz: sz }
+    }
+
+    pub fn update(&mut self, i: usize, x: T) {
+        let mut idx = i + self.sz;
+        self.node[idx] = x;
+        while idx > 1 {
+            idx = idx >> 1;
+            self.node[idx] = self.node[idx << 1].op(&self.node[(idx << 1)  + 1]);
+        }
+    }
+
+    pub fn fold(&self, left: usize, right: usize) -> T {
+        let mut lx = T::identity();
+        let mut rx = T::identity();
+        let mut l = left + self.sz;
+        let mut r = right + self.sz;
+        while l < r {
+            if (l & 1) == 1 { lx = lx.op(&self.node[l]); }
+            if (r & 1) == 0 { rx = self.node[r].op(&rx); }
+            l = (l + 1) >> 1;
+            r = (r - 1) >> 1;
+        }
+        if l == r { lx = lx.op(&self.node[l]); }
+        lx.op(&rx)
+    }
+}
