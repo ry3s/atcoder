@@ -39,54 +39,53 @@ fn main() {
     let mut sc = Scanner::new(cin);
 
     let (n, q): (usize, usize) = (sc.input(), sc.input());
-    let infants: Vec<(usize, usize)> = (0..n)
+    let ab: Vec<(usize, usize)> = (0..n)
+        .map(|_| (sc.input(), sc.input()))
+        .collect();
+    let cd: Vec<(usize, usize)> = (0..q)
         .map(|_| (sc.input(), sc.input()))
         .collect();
 
-    let mut whr = vec![0; n];
-    for (j, (rate, i)) in infants.iter().enumerate() {
-        whr[j] = i - 1;
-    }
-    let mut rates = vec![MultiSet::new(); 200_000];
-    for (rate, i) in &infants {
-        rates[i - 1].insert(rate.clone());
+    let child_to_rate: Vec<usize> = ab.iter().map(|&(a, _)| a).collect();
+    let mut child_to_garten: Vec<usize> = ab.iter().map(|&(_, b)| b - 1).collect();
+
+    let mut rates_in_garten = vec![BTreeMap::new(); 200_000];
+    for &(rate, garten) in &ab {
+        rates_in_garten[garten - 1].add(rate);
     }
 
     let mut segtree = SegmentTree::init(vec![std::usize::MAX; 200_000]);
 
-    for (i, rate) in rates.iter().enumerate() {
-        if let Some(maxi) = rate.iter().next_back() {
-            segtree.update(i, *maxi);
+    for (i, rate) in rates_in_garten.iter().enumerate() {
+        if let Some(rate_max) = rate.most() {
+            segtree.update(i, rate_max);
         }
     }
 
+    for (child, nxt) in cd {
+        let child = child - 1;
+        let nxt = nxt - 1;
+        let prv = child_to_garten[child];
+        let rate = child_to_rate[child];
 
-    // println!("{:?}, {:?}, {:?}", rates[0], rates[2], rates[3]);
-    println!();
-    for _ in 0..q {
-        let c: usize = sc.input();
-        let nxt: usize = sc.input();
-        let prv = whr[c - 1];
-        let rate = infants[c - 1].0.clone();
-        rates[prv].remove(&rate);
-        rates[nxt].insert(rate);
-        if let Some(maxi) = rates[prv].iter().next_back() {
-            println!("{}", maxi);
-            segtree.update(prv, *maxi);
+        rates_in_garten[prv].del(rate);
+        rates_in_garten[nxt].add(rate);
+
+        if let Some(rate_max) = rates_in_garten[prv].most() {
+            segtree.update(prv, rate_max);
         } else {
             segtree.update(prv, std::usize::MAX);
         }
-        if let Some(maxi) = rates[nxt].iter().next_back() {
-            println!("{}", maxi);
-            segtree.update(nxt, *maxi);
+
+        if let Some(rate_max) = rates_in_garten[nxt].most() {
+            segtree.update(nxt, rate_max);
         } else {
             segtree.update(nxt, std::usize::MAX);
         }
 
-        // println!("{:?}, {:?}, {:?}", rates[0], rates[2], rates[3]);
-        whr[c - 1] = nxt;
+        child_to_garten[child] = nxt;
         let ans = segtree.fold(0, 200_000);
-        // println!("{}", ans);
+        println!("{}", ans);
     }
 }
 
@@ -181,10 +180,10 @@ impl<T: Ord + Clone> MultiSet<T> for BTreeMap<T, usize> {
     }
 
     fn least(&self) -> Option<T> {
-        self.iter().next().and_then(|(k, _)| k.clone())
+        self.iter().next().map(|(k, _)| k.clone())
     }
 
     fn most(&self) -> Option<T> {
-        self.iter().next_back().and_then(|(k, _)| k.clone())
+        self.iter().next_back().map(|(k, _)| k.clone())
     }
 }

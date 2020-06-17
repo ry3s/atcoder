@@ -612,3 +612,33 @@ impl<T: Monoid> SegmentTree<T> {
         lx.op(&rx)
     }
 }
+
+trait MultiSet<T> {
+    fn add(&mut self, key: T);
+    fn del(&mut self, key: T);
+    fn least(&self) -> Option<T>;
+    fn most(&self) -> Option<T>;
+}
+
+impl<T: Ord + Clone> MultiSet<T> for BTreeMap<T, usize> {
+    fn add(&mut self, key: T) {
+        *self.entry(key).or_insert(0) += 1;
+    }
+
+    fn del(&mut self, key: T) {
+        if let Some(value) = self.get_mut(&key) {
+            *value -= 1;
+            if *value == 0 {
+                self.remove(&key);
+            }
+        }
+    }
+
+    fn least(&self) -> Option<T> {
+        self.iter().next().map(|(k, _)| k.clone())
+    }
+
+    fn most(&self) -> Option<T> {
+        self.iter().next_back().map(|(k, _)| k.clone())
+    }
+}
