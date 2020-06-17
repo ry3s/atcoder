@@ -111,7 +111,23 @@ fn enumerate_divisors(n: i64) -> Vec<i64> {
     }
     ret
 }
+fn prime_factor(n: usize) -> BTreeMap<usize, usize> {
+    let mut ret = BTreeMap::new();
+    let mut n = n;
+    let mut i: usize = 2;
+    while i * i <= n {
+        while n % i == 0 {
+            *ret.entry(i).or_insert(0) += 1;
+            n /= i;
+        }
+        i += 1;
+    }
 
+    if n != 1 {
+        *ret.entry(n).or_insert(0) += 1;
+    }
+    ret
+}
 fn gcd(m: i64, n: i64) -> i64 {
     if m < n {
         gcd(n, m)
