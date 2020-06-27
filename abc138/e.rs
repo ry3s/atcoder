@@ -40,6 +40,7 @@ fn ctoi(ch: char) -> usize {
     (ch as u8 - b'a') as usize
 }
 
+use std::collections::BTreeMap;
 fn main() {
     let cin = stdin();
     let cin = cin.lock();
@@ -51,78 +52,63 @@ fn main() {
     let sn = s.len();
     let tn = t.len();
 
-    let mut nexts = vec![vec![None; 26]; sn];
-    let mut lasts = vec![None; 26];
-
-    for (i, &c) in s.iter().rev().enumerate() {
-        lasts[ctoi(c)] = Some(i);
+    let mut map = BTreeMap::new();
+    for (i, ch) in s.iter().enumerate() {
+        map.entry(ch).or_insert(vec![]).push(i as usize);
     }
 
-    for (i, &c) in s.iter().rev().enumerate() {
-        lasts[ctoi(c)] = Some(i);
-
-        for ci in 0..26 {
-            nexts[i][ci] = match lasts[ci] {
-                None => None,
-                Some(ni) => Some((ni, if ni < i { 1_usize } else { 0 })),
-            }
+    let keys = map.keys().cloned().collect::<Vec<_>>();
+    for k in keys {
+        let v = map.get_mut(&k).unwrap();
+        for i in v.clone() {
+            v.push(i + sn);
         }
     }
 
-    let mut si = 0;
-    let mut wrap = 0;
-    let mut ok = true;
-
+    let mut res = 0;
+    let mut pos = 0;
     for ch in t {
-        match nexts[si][ctoi(ch)] {
-            Some((ni, w)) => {
-                si = ni;
-                wrap += w;
+        let posv = if let Some(v) = map.get(&ch) {
+            v
+        } else {
+            println!("-1");
+            return;
+        };
 
-                si += 1;
-                if si == sn {
-                    si = 0;
-                    wrap += 1;
-                }
-            }
-            None => {
-                ok = false;
-                break;
-            }
+        let i = search(posv.len(), |x| {
+            let p = posv[x];
+            pos < p
+        });
+
+        if let Some(i) = i {
+            let p = posv[i];
+            res += p - pos;
+            pos = p % sn;
         }
     }
 
-    if ok {
-        println!("{}", wrap * sn + si);
-    } else {
-        println!("-1");
+    println!("{}", res + 1);
+}
+
+fn search<F>(ok: usize, check: F) -> Option<usize>
+where
+    F: Fn(usize) -> bool,
+{
+    let mut x = ok as i64;
+    let mut ok = ok as i64;
+    let mut ng = -1 as i64;
+    while (ok - ng).abs() > 1 {
+        let mid = (ok + ng) / 2;
+        if check(mid as usize) {
+            ok = mid;
+        } else {
+            ng = mid;
+        }
     }
-    // let mut sets = vec![BTreeSet::new(); 26];
-    // for (i, ch) in s.iter().enumerate() {
-    //     sets[(*ch as u8 - 'a' as u8) as usize].insert(i + 1);
-    // }
 
-    // let mut cur = 1;
-    // for ch in t {
-    //     let set = &sets[(ch as u8 - 'a' as u8) as usize];
-
-    //     if set.is_empty() {
-    //         println!("-1");
-    //         return;
-    //     }
-
-    //     let mut ok = false;
-    //     for &i in set {
-    //         if i > cur % ns {
-    //             cur += i - cur % ns;
-    //             ok = true;
-    //             break;
-    //         }
-    //     }
-
-    //     if !ok {
-    //         cur += set.iter().next().unwrap() + ns - cur % ns;
-    //     }
-    // }
-    // println!("{}", cur);
+    if ok == x {
+        None
+    } else {
+        Some(ok as usize)
+    }
 }

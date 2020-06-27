@@ -33,9 +33,9 @@ impl<'a> Scanner<'a> {
 
 trait BinarySearch<T> {
     // key 以上の値が最初に現れる index を返す
-    fn lower_bound(&self, &T) -> usize;
+    fn lower_bound(&self, key: &T) -> usize;
     // key より大きい値が最初に現れる index を返す
-    fn upper_bound(&self, &T) -> usize;
+    fn upper_bound(&self, key: &T) -> usize;
 }
 use std::cmp::Ordering;
 impl<T: Ord> BinarySearch<T> for [T] {
@@ -74,7 +74,7 @@ impl<T: Ord> BinarySearch<T> for [T] {
     }
 }
 
-fn count_digit(n: i64) -> i64 {
+fn count_digit(n: usize) -> usize {
     let mut n = n;
     let mut ret = 0;
     while n > 0 {
@@ -84,7 +84,7 @@ fn count_digit(n: i64) -> i64 {
     ret
 }
 
-fn digit_sum(n: i64) -> i64 {
+fn digit_sum(n: usize) -> usize {
     let mut n = n;
     let mut ret = 0;
     while n > 0 {
@@ -93,13 +93,13 @@ fn digit_sum(n: i64) -> i64 {
     }
     ret
 }
-fn enumerate_divisors(n: i64) -> Vec<i64> {
+fn enumerate_divisors(n: usize) -> Vec<usize> {
     let mut ret = Vec::new();
     let mut i = 1;
     while i * i <= n {
         if n % i == 0 {
             ret.push(i);
-            if i != 1 && i * i != n {
+            if i * i != n {
                 ret.push(n / i);
             }
         }
