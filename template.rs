@@ -383,6 +383,12 @@ impl Combination {
     fn h(&self, n: usize, k: usize) -> usize {
         self.get(n + k - 1, k)
     }
+
+    #[allow(dead_code)]
+    fn p(&self, n: usize, k: usize) -> usize {
+        assert!(n >= k);
+        self.fac[n] * self.finv[n - k]
+    }
 }
 
 #[test]

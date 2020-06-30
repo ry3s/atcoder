@@ -32,25 +32,19 @@ impl<'a> Scanner<'a> {
     }
 }
 
+
 fn main() {
     let cin = stdin();
     let cin = cin.lock();
     let mut sc = Scanner::new(cin);
 
-    let s: String = sc.input();
-    let mut s: Vec<char> = s.chars().collect();
+    let k: usize = sc.input();
 
-    let mut s_cnt = 0;
-    let mut t_cnt = 0;
-    for c in s {
-        if c == 'S' {
-            s_cnt += 1;
-        } else if s_cnt > 0 {
-            s_cnt -= 1;
-        } else {
-            t_cnt += 1;
-        }
+    let (mut a, mut b) = (2, 1);
+    for _ in 0..k - 1 {
+        let tmp = a;
+        a += b;
+        b = tmp;
     }
-
-    println!("{}", s_cnt + t_cnt);
+    println!("{} {}", a, b);
 }
