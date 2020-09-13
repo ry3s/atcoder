@@ -200,6 +200,54 @@ impl UnionFind {
         }
     }
 }
+struct UnionFind {
+    par: Vec<usize>,
+    size: Vec<usize>,
+}
+
+impl UnionFind {
+    fn new(n: usize) -> Self {
+        let mut par = vec![0; n];
+        let mut size = vec![0; n];
+        for i in 0..n {
+            par[i] = i;
+            size[i] = 1;
+        }
+        Self { par, size }
+    }
+
+    fn is_same(&mut self, x: usize, y: usize) -> bool {
+        self.find_root(x) == self.find_root(y)
+    }
+
+    fn find_root(&mut self, x: usize) -> usize {
+        if x != self.par[x] {
+            self.par[x] = self.find_root(self.par[x]);
+        }
+        self.par[x]
+    }
+
+    fn merge(&mut self, x: usize, y: usize) {
+        let x = self.find_root(x);
+        let y = self.find_root(y);
+        if x == y {
+            return;
+        }
+
+        if self.size[x] > self.size[y] {
+            self.par[y] = x;
+            self.size[x] += self.size[y];
+        } else {
+            self.par[x] = y;
+            self.size[y] += self.size[x];
+        }
+    }
+
+    fn tree_size(&mut self, x: usize) -> usize {
+        let root = self.find_root(x);
+        self.size[root]
+    }
+}
 
 #[derive(Clone, Debug, PartialEq)]
 struct Edge {
